@@ -1,7 +1,10 @@
 function [d] = ref2bipolar_reg(d,subj)
 % d is a matrix of samples by channels by trials consisting of referential intracranial EEG data
 
-[bipolarN,bipolarT]=xlsread(['/Volumes/KLEEN_DRIVE/David/Bipolar project/AN_ElectrodeInfoTDT.xlsx'],subj);
+
+data_root = getenv("KLEEN_DATA");
+datadir = fullfile(data_root, 'bipolar_expedition');
+[bipolarN,bipolarT]=xlsread(fullfile(datadir,'AN_ElectrodeInfoTDT.xlsx'),subj);
 
 % account for case where subject has less channels recorded, chop off last
 % part of bipolarN row 

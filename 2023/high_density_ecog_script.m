@@ -37,9 +37,14 @@ twoSidedPerm = true;
 
 fs = 512; % sampling rate Hz
 
+data_root = getenv("KLEEN_DATA");
+datadir = fullfile(data_root, 'bipolar_expedition');
+folderDataBase = '/home/dcaldwell/results'; %%% change to be on the main data drive 
+
+
 %fileSpikes = '/Volumes/KLEEN_DRIVE/David/Bipolar project/taggedspikes.mat'; %old
-fileSpikes = '/Volumes/KLEEN_DRIVE/David/Bipolar project/taggedSpikes_April2022';
-folderBaseline = '/Volumes/KLEEN_DRIVE/David/Bipolar project/baseline-high-density-data';
+fileSpikes = fullfile(datadir, 'taggedspikes_April2022.mat');
+folderBaseline = fullfile(datadir,'baseline-high-density-data');
 filesFolderBaseline = dir(folderBaseline);
 namesFilesBaseline = {filesFolderBaseline(:).name};
 
@@ -78,7 +83,6 @@ patientsVetted = ptsTotal;
 % skip EC195
 
 %folderDataBase = '/Volumes/KLEEN_DRIVE/David/Bipolar project/output';
-folderDataBase = '/Users/davidcaldwell/Box/KLEENLAB/David/Results/June results fewer subj/';
 folderFiguresCell = {fullfile(folderDataBase,'LL20'),fullfile(folderDataBase,'LL40'),fullfile(folderDataBase,'LL100'),fullfile(folderDataBase,'absDer')};
 cellAbsDeriv = {false,false,false,true};
 cellLL = {true,true,true,false};
@@ -491,7 +495,7 @@ for index = 1:length(folderFiguresCell)
                 tempCellpValAdjustSub = cell(numGoodChansFullSub,1);
                 tempPvaluesIndSub = nan(numGoodChansFullSub,1);
                 
-                parfor chanGoodInd = 1:numGoodChansFull
+                for chanGoodInd = 1:numGoodChansFull
                     goodChan = notNanInds(chanGoodInd);
                     [clusters, pValues, ~, ~] = permutest(squeeze(referencedDataGoodOnly(1:end-1,goodChan,:)),squeeze(referencedDataBaselineGoodOnly(:,goodChan,:)),false,[],[],twoSidedPerm);
                     
@@ -546,7 +550,7 @@ for index = 1:length(folderFiguresCell)
                 
                 tempPvaluesSub = nan(size(referencedDataGoodOnly,2),1);
                 
-                parfor chanGoodIndSub = 1:numGoodChansFullSub
+                for chanGoodIndSub = 1:numGoodChansFullSub
                     goodChanSub = notNanSubInds(chanGoodIndSub);
                     [clustersSub, pValuesSub,~, ~]  = permutest(squeeze(referencedDataSubSampleGoodOnly(1:end-1,goodChanSub,:)),squeeze(referencedDataBaselineSubSampleGoodOnly(:,goodChanSub,:)),false,[],[],twoSidedPerm);
                     
