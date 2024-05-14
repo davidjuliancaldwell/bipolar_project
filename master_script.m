@@ -4,3 +4,6 @@ post_hoc_stats
 
 %%
 bipolarexpedition_Linear
+
+%%
+bipolarexpedition_EachVsAll

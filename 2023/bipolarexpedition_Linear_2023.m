@@ -12,12 +12,12 @@ switch g1s2d3
 end
 bpd_mm=bpd_mm*(0:maxbpd); %bipolar distances to be evaluated, in mm
 
-cm=cool(50); cm=[0 0 0;cm]; %first entry black for referential, rest allows color-coding of physical distance
-% datadir='/Volumes/KLEEN_DRIVE/David/Bipolar project/'; %bandpassfiltered/';
+caxisrange=[0 20];
+cm=cool(caxisrange(2)); 
+cm=[0 0 0;cm]; %first entry black for referential, rest allows color-coding of physical distance
 data_root = getenv("KLEEN_DATA");
+if ~exist('data_root','dir'); data_root='/Volumes/KLEEN_DRIVE/'; end
 datadir = fullfile(data_root, 'bipolar_expedition');
-% cd([datadir 'baseline-high-density-data/'])
-% load('/Volumes/KLEEN_DRIVE/David/Bipolar project/taggedspikes_April2022.mat')
 tag_spikes_path = fullfile(datadir, 'taggedspikes_April2022.mat');
 load(tag_spikes_path);
 sfx=512;
@@ -27,9 +27,6 @@ frxrange=[2 200]; %frequency range to examine
 %which patients are ok to do
 okpt=false(1,length(pts)); 
     okpt([4 12:16 19:23])=1;
-
-% for i=1:length(Spt); ptblall{i,1}=[Spt{i} '_' Sblock{i}]; end %seems like Devon forgot to include EC181_B7-9 so will use the below method instead
-% uptbl=unique(ptblall); 
 
 %% LINEAR PAIRS analysis and plots
 figure(1); set(gcf,'color','w','position',[372 1 1297 1337]); 
@@ -54,7 +51,6 @@ for bpd=0:maxbpd %bipolar distance (# of electrodes to subsample)
         d=[]; %d will become a matrix of samples by channels by trials consisting of referential intracranial EEG data
         nwind=0;
         for b=1:length(ptbl); disp(uptbl{ptbl(b)})
-            % load using using "_jk" versions of baseline windows, updated 2/2022
             datapath = fullfile(datadir, 'baseline-high-density-data', [uptbl{ptbl(b)} '_baselineWindows_fromraw.mat']);
             load(datapath);
             % get rid of baseline windows containing spikes or artifact
@@ -178,7 +174,7 @@ for bpd=0:maxbpd %bipolar distance (# of electrodes to subsample)
              ylabel('ln(power)'); 
              legend({'referential','', num2str(bpd_mm(2)),'', num2str(bpd_mm(3)),'',num2str(bpd_mm(4)),'',num2str(bpd_mm(5)),'',num2str(bpd_mm(6))},'location','sw'); 
              axis tight; set(gca,'xscale','log','xtick',ft,'XTickLabel',ftl)
-             colormap(cm); caxis([0 51]); cb=colorbar; cb.Ticks=[0.5 bpd_mm(2:end)+.5]; cb.TickLabels=[{'Referential'};cellstr(num2str(bpd_mm(2:end)'))];
+             colormap(cm); caxis([caxisrange]); cb=colorbar; cb.Ticks=[0.5 bpd_mm(2:end)]; cb.TickLabels=[{'Referential'};cellstr(num2str(bpd_mm(2:end)'))];
          end
       end
 
@@ -199,7 +195,7 @@ for bpd=0:maxbpd %bipolar distance (# of electrodes to subsample)
             end; 
             ribbons(frx,log(specttoplot),cm(bpd_mm(bpd+1)+1,:),.3,'sem',0,0); 
             grid on; set(gca,'xlim',frxrange) %,'xscale','log','xtick',ft,'xticklabel',ftl
-            colormap(cm); caxis([0 51]); cb=colorbar; cb.Ticks=[0.5 bpd_mm(2:end)+.5]; cb.TickLabels=[{'Referential'};cellstr(num2str(bpd_mm(2:end)'))];
+            colormap(cm); caxis([caxisrange]); cb=colorbar; cb.Ticks=[0.5 bpd_mm(2:end)]; cb.TickLabels=[{'Referential'};cellstr(num2str(bpd_mm(2:end)'))];
             clear c specttoplot
       end; %set(gcf,'position',[1198 785 498 481]) %to resize spectra for figure
 
@@ -239,7 +235,7 @@ for bpd=[1:maxbpd 0]
 end; 
 grid on; ylabel('ln(power)'); xlabel('Frequency (Hz)'); 
 set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
-colormap(cm); caxis([0 51]); cb=colorbar; cb.Ticks=[0.5 bpd_mm(2:end)+.5]; cb.TickLabels=[{'Referential'};cellstr(num2str(bpd_mm(2:end)'))];
+colormap(cm); caxis([caxisrange]); cb=colorbar; cb.Ticks=[0.5 bpd_mm(2:end)]; cb.TickLabels=[{'Referential'};cellstr(num2str(bpd_mm(2:end)'))];
 
 %% Plotting individual sections of full frequency range separately
 figure('color','w','position',[1000 517 354 821]); colormap(cmocean('thermal')); %x=4*(0:maxbpd);
