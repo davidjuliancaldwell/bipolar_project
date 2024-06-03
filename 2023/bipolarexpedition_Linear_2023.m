@@ -22,7 +22,8 @@ tag_spikes_path = fullfile(datadir, 'taggedspikes_April2022.mat');
 load(tag_spikes_path);
 sfx=512;
 frxrange=[2 200]; %frequency range to examine
-  ft=[2 5 10 20 50 100 200]; ftl=cellstr(num2str(ft')); %frequency labels for plots
+  ft=[2 5 10 20 50 100 200]; %frequency tick marks for plots
+  ftl=cellstr(num2str(ft')); %frequency labels for plots
 
 %which patients are ok to do
 okpt=false(1,length(pts)); 
@@ -82,6 +83,7 @@ for bpd=0:maxbpd %bipolar distance (# of electrodes to subsample)
 
         % pull electrode XYZ coordinates (em) from TDT_elecs_all.mat file
         [em,~,~]=getelecs(pts{p},2);
+        if isempty(em); error(['Missing electrode coordinates for ' pts{p} ', check paths']); end
 
         %% bipolar conversion
         % d is a matrix of samples by channels by trials
@@ -155,50 +157,74 @@ for bpd=0:maxbpd %bipolar distance (# of electrodes to subsample)
         
         %% Calculate spectra and put into matrices (bipolarDistance X patient X frequency) aggregated for each patient 
       if any(okc)
-        [trm,frx,s]=bpspectra_Linear_2023(d,sfx,frxrange,okc);
+        [ln_s,frx]=bpspectra_Linear_2023(d,sfx,frxrange,okc); %important: natural log is applied right before output
+        
+        trm=sq(mean(ln_s,3))'; %"trial mean": trm is mean of natural log transform of power across windows/trials
+        trm(~okc,:)=nan;
 
         TRM(bpd+1,p,:)=mean(trm(okc,:),1); % Mean
         TRSD(bpd+1,p,:)=std(trm(okc,:),[],1); %Standard deviation
         TRSE(bpd+1,p,:)=TRSD(bpd+1,p,:)/sqrt(sum(okc)); %SEM
         TRbp_distance{bpd+1,p}=bp_distance; %actual euclidean distances for each bp pair 
 
-        SS{bpd+1,p}=s; 
+        SS{bpd+1,p}=ln_s; 
         hasmat(bpd+1,p)=1;
         Sokc{bpd+1,p}=okc; 
 
         figure(1); sp(5,5,p); hold on; %each patient in their own plot
-         ribbons(frx,trm,cm(bpd_mm(bpd+1)+1,:),.5,'sem',0,0); 
+         ribbons(frx,trm(okc,:),cm(bpd_mm(bpd+1)+1,:),.5,'sem',0,0); set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
          grid on; title(pts{p}); drawnow; 
          if p==4; 
              xlabel('Frequency (Hz)'); 
              ylabel('ln(power)'); 
              legend({'referential','', num2str(bpd_mm(2)),'', num2str(bpd_mm(3)),'',num2str(bpd_mm(4)),'',num2str(bpd_mm(5)),'',num2str(bpd_mm(6))},'location','sw'); 
-             axis tight; set(gca,'xscale','log','xtick',ft,'XTickLabel',ftl)
+             axis tight; set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
              colormap(cm); caxis([caxisrange]); cb=colorbar; cb.Ticks=[0.5 bpd_mm(2:end)]; cb.TickLabels=[{'Referential'};cellstr(num2str(bpd_mm(2:end)'))];
          end
       end
 
       %% ECoG trace plots for increasing bipolar spacing (example patient)
       if p==4 
-        figure(5); set(gcf,'color','w','position',[1638 1 668 1344])
-        sp(6,2,(bpd+1)*2-1); hold on; 
+        figure(5); set(gcf,'color','w','position',[120 187 1586 860])
+        %sp(6,2,(bpd+1)*2-1);
+        sp(4,6,bpd+1);
         chtoplot=49:64; %example channels [EC143-49:64, EC175-]
-        windowtoplot=12; %example window
+        windowtoplot=11; %example window
         ts=1/sfx:1/sfx:1; %timestamps for 1-sec window
         eegplotbytime2021(d(:,chtoplot,windowtoplot)',sfx,300,[],0,[.3 .3 .3],1);
     %             for c=1:length(chtoplot); plot(ts,-c*1000+d(:,chtoplot(c),windowtoplot),'color',[0 .6 .6],'linewidth',1); end
         if ~exist('yl','var'); yl=ylim; end; ylim(yl);
+        ylim(yl+(bpd/2+.5))
         axis off
-        sp(2,2,2); hold on; 
-            for c=chtoplot
-                [specttoplot(c-chtoplot(1)+1,:),frx]=spectrogramjk_chronuxmtfft(sq(d(:,c,windowtoplot)),sfx,frxrange,[.5,1],0);
-            end; 
-            ribbons(frx,log(specttoplot),cm(bpd_mm(bpd+1)+1,:),.3,'sem',0,0); 
-            grid on; set(gca,'xlim',frxrange) %,'xscale','log','xtick',ft,'xticklabel',ftl
-            colormap(cm); caxis([caxisrange]); cb=colorbar; cb.Ticks=[0.5 bpd_mm(2:end)]; cb.TickLabels=[{'Referential'};cellstr(num2str(bpd_mm(2:end)'))];
-            clear c specttoplot
-      end; %set(gcf,'position',[1198 785 498 481]) %to resize spectra for figure
+        sp(2,3,4); hold on; 
+        for c=chtoplot
+           [specttoplot(c-chtoplot(1)+1,:),frx]=spectrogramjk_chronuxmtfft(sq(d(:,c,windowtoplot)),sfx,frxrange,[.5,1],0);
+        end
+        specttoplot=log(specttoplot); %data directly from spectrogramjk_chronuxmtfft is not transformed yet 
+        ribbons(frx,specttoplot,cm(bpd_mm(bpd+1)+1,:),.3,'sem',0,0); 
+        
+        %ribbons(frx,trm(chtoplot,:),cm(bpd_mm(bpd+1)+1,:),.3,'sem',0,0); 
+        grid on; 
+        set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
+        clear c specttoplot
+        ylabel('ln(power)'); drawnow; 
 
+        if bpd==0
+            subplot(2,100,146:175)
+            %elecsbrain(pts{p},0,[],[0 0 0],'l',0,10,2); alpha 1;
+            elecsbrain(pts{p},0,[chtoplot],[1 0 0],'l',0,7,2); litebrain('l',.2)
+            zoom(1)
+        end
+
+        subplot(2,100,176:200)
+        colormap(gca,cm); 
+        caxis(caxisrange); 
+        cb=colorbar; 
+        cb.Ticks=[0.5 bpd_mm(2:end)-.5]; 
+        cb.TickLabels=[{'Referential'} ; cellstr(num2str(bpd_mm(2:end)'))];
+        axis off
+
+      end; %set(gcf,'position',[1198 785 498 481]) %to resize spectra for figure
 
 
     end % patient loop
@@ -216,19 +242,26 @@ TRSE(:,~okpt,:)=nan;
 
 %% plots aggregated across patients
 figure; set(gcf,'color','w'); %,'position',[1055 216 1217 826]
+normalizebyrferential=1;
 hold on
 ps=nan(maxbpd,length(pts),length(frx));
-for bpd=[1:maxbpd 0]
+for bpd=[0 1:maxbpd]
     h=find(hasmat(bpd+1,:));
     for p=h
         ps_=SS{bpd+1,p};
-        ps(bpd+1,p,:)=mean(mean(log(ps_(:,Sokc{bpd+1,p},:)),3),2);
-        %ps(bpd+1,p,:)=nanmean(nanmean(log(ps_),3),2);
+        
+        ps(bpd+1,p,:)=mean(mean((ps_(:,Sokc{bpd+1,p},:)),3),2);
+        %ps(bpd+1,p,:)=nanmean(nanmean((ps_),3),2);
 
-        ps_=nanmean(nanmean(log(ps_),3),2); 
+        ps_=nanmean(nanmean((ps_),3),2); 
         ps_=(ps_-mean(ps_))/std(ps_); %z-score
         ps(bpd+1,p,:)=ps_;
     end
+%     if normalizebyrferential && bpd~=0
+%       for p=h
+%         ps(bpd+1,p,:)=ps(bpd+1,p,:)-(ps(1,p,:));
+%       end
+%     end
     %ribbons(frx,sq(ps(bpd+1,h,:)),cm(bpd_mm(bpd+1)+1,:),.3,'sem',0,0); grid on; set(gca,'xlim',frxrange)
     plot(frx,mean(sq(ps(bpd+1,h,:)),1),'color',cm(bpd_mm(bpd+1)+1,:),'linewidth',2); 
     hold on
@@ -237,12 +270,12 @@ grid on; ylabel('ln(power)'); xlabel('Frequency (Hz)');
 set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
 colormap(cm); caxis([caxisrange]); cb=colorbar; cb.Ticks=[0.5 bpd_mm(2:end)]; cb.TickLabels=[{'Referential'};cellstr(num2str(bpd_mm(2:end)'))];
 
-%% Plotting individual sections of full frequency range separately
-figure('color','w','position',[1000 517 354 821]); colormap(cmocean('thermal')); %x=4*(0:maxbpd);
-sp(4,1,4); f=frx>0&frx<=20; imagesc(bpd_mm,frx(f),sq(nanmean(TRM(:,:,f),2))'); set(gca,'ydir','normal','xtick',bpd_mm,'xticklabel',cellstr(num2str(bpd_mm'))'); xlabel('Bipolar distance (mm)'); ylabel('Frequency (Hz)')
-sp(4,1,3); f=frx>20&frx<=50; imagesc(bpd_mm,frx(f),sq(nanmean(TRM(:,:,f),2))'); set(gca,'ydir','normal','xtick',[]);
-sp(4,1,2); f=frx>50&frx<=100; imagesc(bpd_mm,frx(f),sq(nanmean(TRM(:,:,f),2))'); set(gca,'ydir','normal','xtick',[]);
-sp(4,1,1); f=frx>100&frx<=170; imagesc(bpd_mm,frx(f),sq(nanmean(TRM(:,:,f),2))'); set(gca,'ydir','normal','xtick',[]); title('Average across patients')
+% %% Plotting individual sections of full frequency range separately
+% figure('color','w','position',[1000 517 354 821]); colormap(cmocean('thermal')); %x=4*(0:maxbpd);
+% sp(4,1,4); f=frx>0&frx<=20; imagesc(bpd_mm,frx(f),sq(nanmean(TRM(:,:,f),2))'); set(gca,'ydir','normal','xtick',bpd_mm,'xticklabel',cellstr(num2str(bpd_mm'))'); xlabel('Bipolar distance (mm)'); ylabel('Frequency (Hz)')
+% sp(4,1,3); f=frx>20&frx<=50; imagesc(bpd_mm,frx(f),sq(nanmean(TRM(:,:,f),2))'); set(gca,'ydir','normal','xtick',[]);
+% sp(4,1,2); f=frx>50&frx<=100; imagesc(bpd_mm,frx(f),sq(nanmean(TRM(:,:,f),2))'); set(gca,'ydir','normal','xtick',[]);
+% sp(4,1,1); f=frx>100&frx<=170; imagesc(bpd_mm,frx(f),sq(nanmean(TRM(:,:,f),2))'); set(gca,'ydir','normal','xtick',[]); title('Average across patients')
 
 
 

@@ -1,13 +1,12 @@
-function [trm,frx,s]=bpspectra_Linear_2023(d,sfx,frxrange,okc)
+function [ln_s,frx]=bpspectra_Linear_2023(d,sfx,frxrange,okc)
 % INPUTS:
 %   d is a matrix of ICEEG voltage values as samples x electrodes x windows
 %   sfx is sampling frequency
 %   frxrange is the range of frequencies to look at [min max]
 %   okc is an index of the ok channels (electrodes). 1 is ok, 0 is bad channel
 % OUTPUTS
-%    trm is mean of natural log transform of power across windows/trials
+%    ln_s is all spectra data (frx X channel X window) that was log-transformed. Can do mean to create trm.
 %    frx is index of frequencies
-%    is all spectra data (frx X channel X window) that was used to log-transform then mean to create trm
 
 [~,nch,nwind]=size(d);
 %just getting frequency index
@@ -28,11 +27,11 @@ end; clear D W c w L
 toc
 s=nan(nfrx,nch,nwind);
 s(:,okc,:)=spect; clear spect 
-ln_s=s;
+ln_s=nan(size(s));
 ln_s(:,okc,:)=log(s(:,okc,:)); %natural log transform of power
 %             ln_s=s; %or just skip transform
 
-trm=sq(mean(ln_s,3))'; %trial mean
+
 
 
 
