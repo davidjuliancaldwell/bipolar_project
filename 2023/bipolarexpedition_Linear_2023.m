@@ -17,6 +17,7 @@ cm=cool(caxisrange(2));
 cm=[0 0 0;cm]; %first entry black for referential, rest allows color-coding of physical distance
 data_root = getenv("KLEEN_DATA");
 if ~exist('data_root','dir'); data_root='/Volumes/KLEEN_DRIVE/'; end
+if ~exist('data_root','dir'); data_root='/data/'; end
 datadir = fullfile(data_root, 'bipolar_expedition');
 tag_spikes_path = fullfile(datadir, 'taggedspikes_April2022.mat');
 load(tag_spikes_path);
