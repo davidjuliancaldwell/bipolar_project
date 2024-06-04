@@ -13,8 +13,8 @@ end
 bpd_mm=bpd_mm*(0:maxbpd); %bipolar distances to be evaluated, in mm
 
 caxisrange=[0 20];
-cm=cool(caxisrange(2)); 
-cm=[0 0 0;cm]; %first entry black for referential, rest allows color-coding of physical distance
+cm=cool(17); 
+cm=[0 0 0;1 1 1;1 1 1;cm]; %first entry black for referential, rest allows color-coding of physical distance
 data_root = getenv("KLEEN_DATA");
 if ~exist('data_root','dir'); data_root='/Volumes/KLEEN_DRIVE/'; end
 if ~exist('data_root','dir'); data_root='/data/'; end
@@ -184,7 +184,7 @@ for bpd=0:maxbpd %bipolar distance (# of electrodes to subsample)
         Sokc{bpd+1,p}=okc; 
 
         figure(1); sp(5,5,p); hold on; %each patient in their own plot
-         ribbons(frx,trm(okc,:),cm(bpd_mm(bpd+1)+1,:),.5,'sem',0,0); set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
+         ribbons(frx,trm(okc,:),cm(max([1 bpd_mm(bpd+1)]),:),.5,'sem',0,0); set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
          grid on; title(pts{p}); drawnow; 
          if p==4; 
              xlabel('Frequency (Hz)'); 
@@ -214,9 +214,9 @@ for bpd=0:maxbpd %bipolar distance (# of electrodes to subsample)
         end
 
         specttoplot=log(specttoplot); %data directly from spectrogramjk_chronuxmtfft is not transformed yet 
-        ribbons(frx,specttoplot,cm(bpd_mm(bpd+1)+1,:),.3,'sem',0,0); 
+        ribbons(frx,specttoplot,cm(max([1 bpd_mm(bpd+1)]),:),.3,'sem',0,0); 
         
-        %ribbons(frx,trm(chtoplot,:),cm(bpd_mm(bpd+1)+1,:),.3,'sem',0,0); 
+        %ribbons(frx,trm(chtoplot,:),cm(max([1 bpd_mm(bpd+1)]),:),.3,'sem',0,0); 
         grid on; 
         set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
         clear c specttoplot
@@ -256,7 +256,7 @@ TRSE(:,~okpt,:)=nan;
 %% plots aggregated across patients
 figure; set(gcf,'color','w','position',[88 122 494 624]); %,'position',[1055 216 1217 826]
 rebase=1;
-rebase_fl=[2 4]; %frequency limits for rebasing to referential signal
+rebase_fl=[2 200]; %frequency limits for rebasing to referential signal
 p_rebased=nan(length(pts),1);
 hold on
 ps=nan(maxbpd,length(pts),length(frx)); 
@@ -271,8 +271,9 @@ for p=1:length(pts);
         end
       end
   if any(hasmat(bpd+1,p));
-    if rebase %rebasing to referential signal if desired
-      p_rebased(p)=mean(ps(1,p, frx>=rebase_fl(1) & frx<=rebase_fl(2)));
+    % Rebasing to MEDIAN of referential spectrum
+    if rebase
+      p_rebased(p)=median(ps(1,p, frx>=rebase_fl(1) & frx<=rebase_fl(2)));
       for bpd=[0 1:maxbpd]
           ps(bpd+1,p,:)=ps(bpd+1,p,:)-p_rebased(p);
       end
@@ -281,14 +282,23 @@ for p=1:length(pts);
 end;
 for bpd=[0 1:maxbpd]
   if any(hasmat(bpd+1,:));
-    ribbons(frx,sq(ps(bpd+1,find(hasmat(bpd+1,:)),:)),cm(bpd_mm(bpd+1)+1,:),.3,'sem',0,0);
-    %  plot(frx,sq(nanmean(ps(bpd+1,:,:),2)), 'color',cm(bpd_mm(bpd+1)+1,:),'linewidth',2); 
+    %ribbons(frx,sq(ps(bpd+1,find(hasmat(bpd+1,:)),:)),cm(max([1 bpd_mm(bpd+1)]),:),.5,'sem',0,0);
+    plot(frx,sq(nanmean(ps(bpd+1,hasmat(bpd+1,:),:),2)), 'color',cm(max([1 bpd_mm(bpd+1)]),:),'linewidth',4); 
+    %plot(frx,sq((ps(bpd+1,hasmat(bpd+1,:),:))), 'color',cm(max([1 bpd_mm(bpd+1)]),:),'linewidth',1); 
     hold on
   end
 end
 grid on; ylabel('ln(power)'); xlabel('Frequency (Hz)'); 
-set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
-colormap(cm); caxis([caxisrange]); cb=colorbar; cb.Ticks=[0.5 bpd_mm(2:end)]; cb.TickLabels=[{'Referential'};cellstr(num2str(bpd_mm(2:end)'))];
+if rebase; title({['Rebased to ' num2str(rebase_fl(1)) '-' num2str(rebase_fl(2)) ' Hz referential signal'],''}); end
+set(gca,'xlim',frxrange,'xtick',ft,'XTickLabel',ftl)
+set(gca,'xscale','log')
+colormap(gca,cm); 
+colormap(cm);
+caxis(caxisrange); 
+cb=colorbar; 
+cb.Ticks=[0.5 bpd_mm(2:end)-.5]; 
+cb.TickLabels=[{'Referential'} ; cellstr(num2str(bpd_mm(2:end)'))];
+caxis([caxisrange]); cb=colorbar; cb.Ticks=[0.5 bpd_mm(2:end)]; cb.TickLabels=[{'Referential'};cellstr(num2str(bpd_mm(2:end)'))];
 1
 % %% Plotting individual sections of full frequency range separately
 % figure('color','w','position',[1000 517 354 821]); colormap(cmocean('thermal')); %x=4*(0:maxbpd);
