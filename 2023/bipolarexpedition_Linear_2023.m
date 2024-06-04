@@ -158,9 +158,20 @@ for bpd=0:maxbpd %bipolar distance (# of electrodes to subsample)
         
         %% Calculate spectra and put into matrices (bipolarDistance X patient X frequency) aggregated for each patient 
       if any(okc)
-        [ln_s,frx]=bpspectra_Linear_2023(d,sfx,frxrange,okc); %important: natural log is applied right before output
+        [s,frx]=bpspectra_Linear_2023(d,sfx,frxrange,okc); %important: natural log is applied right before output
         
-        trm=sq(mean(ln_s,3))'; %"trial mean": trm is mean of natural log transform of power across windows/trials
+        % transform power before analyzing
+        none1sqrt2log3=2; % 1: no transform, 2: square root, 3: log
+        s_Tx=s; % make a copy... then transform the copy
+        if none1sqrt2log3==1;     txtyp='raw'; % no transform, power in raw form
+            
+        elseif none1sqrt2log3==2; txtyp='square root'; % square root transform
+            s_Tx=sqrt(s_Tx);
+        elseif none1sqrt2log3==3; txtyp='natural log'; % log transform --> problematic because taking % change of certain small negative values creates extreme values
+            s_Tx=log(s_Tx);
+        end
+
+        trm=sq(mean(s_Tx,3))'; %"trial mean": trm is mean of natural log transform of power across windows/trials
         trm(~okc,:)=nan;
 
         TRM(bpd+1,p,:)=mean(trm(okc,:),1); % Mean
@@ -168,7 +179,7 @@ for bpd=0:maxbpd %bipolar distance (# of electrodes to subsample)
         TRSE(bpd+1,p,:)=TRSD(bpd+1,p,:)/sqrt(sum(okc)); %SEM
         TRbp_distance{bpd+1,p}=bp_distance; %actual euclidean distances for each bp pair 
 
-        SS{bpd+1,p}=ln_s; 
+        SS{bpd+1,p}=s_Tx; 
         hasmat(bpd+1,p)=1;
         Sokc{bpd+1,p}=okc; 
 
@@ -201,6 +212,7 @@ for bpd=0:maxbpd %bipolar distance (# of electrodes to subsample)
         for c=chtoplot
            [specttoplot(c-chtoplot(1)+1,:),frx]=spectrogramjk_chronuxmtfft(sq(d(:,c,windowtoplot)),sfx,frxrange,[.5,1],0);
         end
+
         specttoplot=log(specttoplot); %data directly from spectrogramjk_chronuxmtfft is not transformed yet 
         ribbons(frx,specttoplot,cm(bpd_mm(bpd+1)+1,:),.3,'sem',0,0); 
         
@@ -242,35 +254,42 @@ TRSE(:,~okpt,:)=nan;
 % TRbpdist(:,~okpt)=nan;  %********
 
 %% plots aggregated across patients
-figure; set(gcf,'color','w'); %,'position',[1055 216 1217 826]
-normalizebyrferential=1;
+figure; set(gcf,'color','w','position',[88 122 494 624]); %,'position',[1055 216 1217 826]
+rebase=1;
+rebase_fl=[2 4]; %frequency limits for rebasing to referential signal
+p_rebased=nan(length(pts),1);
 hold on
-ps=nan(maxbpd,length(pts),length(frx));
-for bpd=[0 1:maxbpd]
-    h=find(hasmat(bpd+1,:));
-    for p=h
-        ps_=SS{bpd+1,p};
-        
-        ps(bpd+1,p,:)=mean(mean((ps_(:,Sokc{bpd+1,p},:)),3),2);
-        %ps(bpd+1,p,:)=nanmean(nanmean((ps_),3),2);
-
-        ps_=nanmean(nanmean((ps_),3),2); 
-        ps_=(ps_-mean(ps_))/std(ps_); %z-score
-        ps(bpd+1,p,:)=ps_;
+ps=nan(maxbpd,length(pts),length(frx)); 
+for p=1:length(pts);
+      for bpd=[0 1:maxbpd]
+        if hasmat(bpd+1,p);
+            % for this current [bpd+1] distance only!
+            p_SS_allwindows=SS{bpd+1,p}; % frequencies X electrodes X windows
+            p_SSfrxelecs=mean(p_SS_allwindows(:,Sokc{bpd+1,p},:),3); % frequencies by OKelectrodes
+            p_SSfrx=mean(p_SSfrxelecs,2); % frequencies
+            ps(bpd+1,p,:)=mean(p_SSfrx,2); % distance X patient X frequencies
+        end
+      end
+  if any(hasmat(bpd+1,p));
+    if rebase %rebasing to referential signal if desired
+      p_rebased(p)=mean(ps(1,p, frx>=rebase_fl(1) & frx<=rebase_fl(2)));
+      for bpd=[0 1:maxbpd]
+          ps(bpd+1,p,:)=ps(bpd+1,p,:)-p_rebased(p);
+      end
     end
-%     if normalizebyrferential && bpd~=0
-%       for p=h
-%         ps(bpd+1,p,:)=ps(bpd+1,p,:)-(ps(1,p,:));
-%       end
-%     end
-    %ribbons(frx,sq(ps(bpd+1,h,:)),cm(bpd_mm(bpd+1)+1,:),.3,'sem',0,0); grid on; set(gca,'xlim',frxrange)
-    plot(frx,mean(sq(ps(bpd+1,h,:)),1),'color',cm(bpd_mm(bpd+1)+1,:),'linewidth',2); 
+  end
+end;
+for bpd=[0 1:maxbpd]
+  if any(hasmat(bpd+1,:));
+    ribbons(frx,sq(ps(bpd+1,find(hasmat(bpd+1,:)),:)),cm(bpd_mm(bpd+1)+1,:),.3,'sem',0,0);
+    %  plot(frx,sq(nanmean(ps(bpd+1,:,:),2)), 'color',cm(bpd_mm(bpd+1)+1,:),'linewidth',2); 
     hold on
-end; 
+  end
+end
 grid on; ylabel('ln(power)'); xlabel('Frequency (Hz)'); 
 set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
 colormap(cm); caxis([caxisrange]); cb=colorbar; cb.Ticks=[0.5 bpd_mm(2:end)]; cb.TickLabels=[{'Referential'};cellstr(num2str(bpd_mm(2:end)'))];
-
+1
 % %% Plotting individual sections of full frequency range separately
 % figure('color','w','position',[1000 517 354 821]); colormap(cmocean('thermal')); %x=4*(0:maxbpd);
 % sp(4,1,4); f=frx>0&frx<=20; imagesc(bpd_mm,frx(f),sq(nanmean(TRM(:,:,f),2))'); set(gca,'ydir','normal','xtick',bpd_mm,'xticklabel',cellstr(num2str(bpd_mm'))'); xlabel('Bipolar distance (mm)'); ylabel('Frequency (Hz)')
