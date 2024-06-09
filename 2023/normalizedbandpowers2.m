@@ -52,8 +52,7 @@ legend(handles, pts, 'Location', 'north', 'Orientation', 'vertical', 'EdgeColor'
 
 function rm_run(band);
 
-data = band;
-data = data(:, 2:end);
+data = band(:, 2:end);
 T = array2table(data, 'VariableNames', {'_4_mm', '_8_mm', '_12_mm', '_16_mm', '_20_mm'});
 Meas = table([1 2 3 4 5]', 'VariableNames', {'Groups'});
 rm = fitrm(T, '_4_mm-_20_mm ~ 1', 'WithinDesign', Meas);
@@ -62,28 +61,4 @@ disp(ranovatbl);
 return
 
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
