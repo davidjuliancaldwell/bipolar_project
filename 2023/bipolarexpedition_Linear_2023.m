@@ -40,9 +40,8 @@ end
 uptbl(1:2)=[]; 
 clear i u uname
 hasmat=false(maxbpd+1,length(pts));
-for bpd=0:maxbpd %bipolar distance (# of electrodes to subsample)
     
-    for p=find(okpt) %[4 12:23]
+for p=find(okpt) %[4 12:23]
         pblocks=strfind(uptbl,pts{p}); 
         for i=1:length(pblocks)
             isbl(i,1)=~isempty(pblocks{i}); 
@@ -86,6 +85,7 @@ for bpd=0:maxbpd %bipolar distance (# of electrodes to subsample)
         [em,~,~]=getelecs(pts{p},2);
         if isempty(em); error(['Missing electrode coordinates for ' pts{p} ', check paths']); end
 
+    for bpd=0:maxbpd %bipolar distance (# of electrodes to subsample)
         %% bipolar conversion
         % d is a matrix of samples by channels by trials
         %   initially it consists of referential intracranial EEG data
@@ -191,7 +191,11 @@ for bpd=0:maxbpd %bipolar distance (# of electrodes to subsample)
              ylabel('ln(power)'); 
              legend({'referential','', num2str(bpd_mm(2)),'', num2str(bpd_mm(3)),'',num2str(bpd_mm(4)),'',num2str(bpd_mm(5)),'',num2str(bpd_mm(6))},'location','sw'); 
              axis tight; set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
-             colormap(cm); caxis([caxisrange]); cb=colorbar; cb.Ticks=[0.5 bpd_mm(2:end)]; cb.TickLabels=[{'Referential'};cellstr(num2str(bpd_mm(2:end)'))];
+             colormap(cm);
+             caxis(caxisrange); 
+             cb=colorbar; 
+             cb.Ticks=[0.5 bpd_mm(2:end)-.5]; 
+             cb.TickLabels=[{'Referential'} ; cellstr(num2str(bpd_mm(2:end)'))];
          end
       end
 
@@ -235,6 +239,7 @@ for bpd=0:maxbpd %bipolar distance (# of electrodes to subsample)
         cb=colorbar; 
         cb.Ticks=[0.5 bpd_mm(2:end)-.5]; 
         cb.TickLabels=[{'Referential'} ; cellstr(num2str(bpd_mm(2:end)'))];
+        
         axis off
 
       end; %set(gcf,'position',[1198 785 498 481]) %to resize spectra for figure
@@ -256,10 +261,11 @@ TRSE(:,~okpt,:)=nan;
 %% plots aggregated across patients
 figure; set(gcf,'color','w','position',[88 122 494 624]); %,'position',[1055 216 1217 826]
 rebase=1;
-rebase_fl=[2 200]; %frequency limits for rebasing to referential signal
+rebase_fl=[2 10]; %frequency limits for rebasing to referential signal
 p_rebased=nan(length(pts),1);
 hold on
 ps=nan(maxbpd,length(pts),length(frx)); 
+C=nan(maxbpd,length(frx)); Cp=C;
 for p=1:length(pts);
       for bpd=[0 1:maxbpd]
         if hasmat(bpd+1,p);
@@ -270,7 +276,7 @@ for p=1:length(pts);
             ps(bpd+1,p,:)=mean(p_SSfrx,2); % distance X patient X frequencies
         end
       end
-  if any(hasmat(bpd+1,p));
+  if any(hasmat(bpd+1,p))
     % Rebasing to MEDIAN of referential spectrum
     if rebase
       p_rebased(p)=median(ps(1,p, frx>=rebase_fl(1) & frx<=rebase_fl(2)));
@@ -279,26 +285,28 @@ for p=1:length(pts);
       end
     end
   end
-end;
+end
 for bpd=[0 1:maxbpd]
-  if any(hasmat(bpd+1,:));
+  if any(hasmat(bpd+1,:))
     %ribbons(frx,sq(ps(bpd+1,find(hasmat(bpd+1,:)),:)),cm(max([1 bpd_mm(bpd+1)]),:),.5,'sem',0,0);
-    plot(frx,sq(nanmean(ps(bpd+1,hasmat(bpd+1,:),:),2)), 'color',cm(max([1 bpd_mm(bpd+1)]),:),'linewidth',4); 
-    %plot(frx,sq((ps(bpd+1,hasmat(bpd+1,:),:))), 'color',cm(max([1 bpd_mm(bpd+1)]),:),'linewidth',1); 
+    %plot(frx,sq(nanmean(ps(bpd+1,hasmat(bpd+1,:),:),2)), 'color',cm(max([1 bpd_mm(bpd+1)]),:),'linewidth',4); 
+    plot(frx,sq((ps(bpd+1,hasmat(bpd+1,:),:))), 'color',cm(max([1 bpd_mm(bpd+1)]),:),'linewidth',1); 
     hold on
+    if bpd>0
+    [clusters, p_values, ~, ~ ] = permutest(sq(ps(bpd+1,hasmat(bpd+1,:),:))',sq(ps(1,hasmat(bpd+1,:),:))',0); clusters(p_values>=0.05)=[]; p_values(p_values>=0.05)=[];
+      for i=1:length(clusters); Cp(bpd,clusters{i})=p_values(i); C(bpd,clusters{i})=1; end;
+    end
   end
 end
-grid on; ylabel('ln(power)'); xlabel('Frequency (Hz)'); 
-if rebase; title({['Rebased to ' num2str(rebase_fl(1)) '-' num2str(rebase_fl(2)) ' Hz referential signal'],''}); end
-set(gca,'xlim',frxrange,'xtick',ft,'XTickLabel',ftl)
-set(gca,'xscale','log')
-colormap(gca,cm); 
-colormap(cm);
+grid on; ylabel('ln(power)'); xlabel('Frequency (Hz)'); ttl=['Mean across patients (n=' num2str(length(find(sum(hasmat,1)))) ')']; title({ttl,''}); 
+if rebase; title({ttl,['Rebased to ' num2str(rebase_fl(1)) '-' num2str(rebase_fl(2)) ' Hz referential signal'],''}); end
+set(gca,'xscale','log','xlim',frxrange,'xtick',ft,'XTickLabel',ftl,'ylim',[min(ylim)-.5 max(ylim)])
+for bpd=1:maxbpd; plot(frx,C(bpd,:)*.05*bpd+min(ylim)+.01,'-', 'color',cm(max([1 bpd_mm(bpd+1)]),:),'linewidth',2); end
+colormap(gca,cm);
 caxis(caxisrange); 
 cb=colorbar; 
 cb.Ticks=[0.5 bpd_mm(2:end)-.5]; 
 cb.TickLabels=[{'Referential'} ; cellstr(num2str(bpd_mm(2:end)'))];
-caxis([caxisrange]); cb=colorbar; cb.Ticks=[0.5 bpd_mm(2:end)]; cb.TickLabels=[{'Referential'};cellstr(num2str(bpd_mm(2:end)'))];
 1
 % %% Plotting individual sections of full frequency range separately
 % figure('color','w','position',[1000 517 354 821]); colormap(cmocean('thermal')); %x=4*(0:maxbpd);
