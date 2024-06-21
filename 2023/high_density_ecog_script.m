@@ -1,27 +1,7 @@
 %%
-
-% total number of electrodes that have spikes, what's the  maximal distance
-% between electrode pairs
-
-% same exact analysis except look at 51 - 52 , look at 52 - 53, vs. 51 - 53
-% for sub-sampled. so shift it over one - do this later
-
-% show bipolar pairs spectra 4 mm vs 8 mm for baseline - schematic
-
-% look at SVM on includec chnnals that match SVM
-
-% look at 5 , sample without replacement for baselines , do 5 iterations
-
-% which electrodes are the seizure onset ones - Jon will go through it
-
-% for paper - blunt , its a general audience, for localization, epilepsy
-% surgery, histogram of electrode numbers per subject vs. total
-
-% each channel, plot distributions for baseline - histogram of windows x
-% baseline , color code
-
 %% load data
 doPlotIndSubj = true;
+makeEqualTrials = false;
 doPerm = true;
 doInd = true;
 plotPermChans = true;
@@ -39,7 +19,7 @@ fs = 512; % sampling rate Hz
 
 data_root = getenv("KLEEN_DATA");
 datadir = fullfile(data_root, 'bipolar_expedition');
-folderDataBase = '/home/dcaldwell/results'; %%% change to be on the main data drive 
+folderDataBase = '/home/dcaldwell/results'; %%% change to be on the main data drive
 
 
 %fileSpikes = '/Volumes/KLEEN_DRIVE/David/Bipolar project/taggedspikes.mat'; %old
@@ -50,22 +30,9 @@ namesFilesBaseline = {filesFolderBaseline(:).name};
 
 
 load(fileSpikes)
-ptsTotal = {'EC129';'EC130';'EC131';'EC133';'EC135';'EC136';'EC137';'EC143';'EC157';'EC162';'EC168';'EC175';'EC181';'EC183';'EC186';'EC187';'EC191';'EC195';'EC196';'EC219';'EC220';'EC221';'EC222'};
-% no EC136
-ptsTotal = {'EC129';'EC130';'EC131';'EC133';'EC137';'EC143';'EC157';'EC162';'EC168';'EC175';'EC183';'EC186';'EC187';'EC191';'EC195';'EC196';'EC219';'EC220';'EC221';'EC222'};
 
-ptsTotal = {'EC129';'EC130';'EC131';'EC133';'EC137';'EC143';'EC157';'EC162';'EC168';'EC175';'EC183';'EC186';'EC187';'EC191';'EC196';'EC219';'EC220';'EC221';'EC222'};
-
-% exclude 129, 130, 137, 175, 183, 187, 191, 196, 219 because < 50 spikes 
+% exclude 129, 130, 137, 175, 183, 187, 191, 196, 219 because < 50 spikes
 ptsTotal = {'EC131';'EC133';'EC143';'EC157';'EC162';'EC168';'EC186';'EC220';'EC221';'EC222'};
-
-
-%ptsTotal = {'EC162';'EC168';'EC175';'EC183';'EC186';'EC187';'EC191';'EC196';'EC219';'EC220';'EC221';'EC222'};
-
-
-%ptsTotal = {'EC196';'EC219';'EC220';'EC221';'EC222'};
-
-%ptsTotal = {'EC219'};
 
 %%
 %Spt = patient name
@@ -87,158 +54,170 @@ folderFiguresCell = {fullfile(folderDataBase,'LL20'),fullfile(folderDataBase,'LL
 cellAbsDeriv = {false,false,false,true};
 cellLL = {true,true,true,false};
 cellLLnum = {0.02,0.04,0.1,0};
-saveName = {'LL20','LL40','LL100','absDer'};
+saveName = {'LL20_v3','LL40_v3','LL100_v3','absDer_v3'};
 
 
 for index = 1:length(folderFiguresCell)
-    
+
     % visualize spikes to start
     figureMeanSpikes = figure;
     figureMeanReref = figure;
     figureMeanRerefSubSample = figure;
-    
+
     figureBaselineMean = figure;
     figureBaselineMeanReref = figure;
     figureBaselineMeanRerefSubSample = figure;
-    
+
     figureStdSpikes = figure;
     figureStdReref = figure;
     figureStdRerefSubSample = figure;
-    
+
     figureBaselineStd = figure;
     figureBaselineStdReref = figure;
     figureBaselineStdRerefSubSample = figure;
-    
+
     figureTotal = figure;
     tiledlayout(5,5,'TileSpacing','Compact','Padding','Compact');
     hold on;
     figureTotal.Position =  [839 109 1408 1229];
-    
+
     figureTotalSub = figure;
     tiledlayout(5,5,'TileSpacing','Compact','Padding','Compact');
     hold on;
     figureTotalSub.Position =  [839 109 1408 1229];
-    
-    %permResultsCell = {};
+
+    permResultsCell = {};
     maxCluster = {};
     permResultsCellConn = {};
     maxClusterConn = {};
     svmCell = {};
-    
+
     % which metric to use for analysis
     useLL = cellLL{index}; % use line length
     useAbsDer = cellAbsDeriv{index};
     folderFigures = folderFiguresCell{index};
     saveNameSpecific = saveName{index};
-    
+
     for jj = 1:length(patientsVetted)
-        
+
         subjName = patientsVetted{jj};
         disp(['Subject ' subjName])
         logicPts = strcmp(subjName,ptsTotal);
         logicVec = find(strcmp(Spt,subjName));
         dataSubj = Straces_allch(logicVec);
-        
+
         % get subject baseline data
         indicesNames = find(contains(namesFilesBaseline,subjName));
-        
+
         totalBaselineDataSubj = [];
         for indicesNums = 1:length(indicesNames)
             baselineData = load(fullfile(folderBaseline,namesFilesBaseline{indicesNames(indicesNums)}));
             spksarti = baselineData.hasspk | baselineData.hasarti;
             excludeInd = spksarti;
-            
-            % baselineDataV2 = [];
-            %baselineCell = baselineData.nonspks_windows(2,:);
-            %for numIndices = 1:length(baselineData.nonspks_windows(2,:))
-            %baselineDataV2(:,:,numIndices) = baselineCell{numIndices};
-            %end
-            %baselineDataV2 = permute(baselineDataV2,[2,1,3]);
-            
+
+
             baselineDataTemp = permute(reshape(cell2mat(baselineData.nonspks_windows(2,~excludeInd)),size(baselineData.nonspks_windows{2,1},1),size(baselineData.nonspks_windows{2,1},2),numel(baselineData.nonspks_windows(2,~excludeInd))),[2,1,3]);
             totalBaselineDataSubj = cat(3,totalBaselineDataSubj,baselineDataTemp);
         end
         % initialize data matrix for each subject
         dataSubjMat = zeros(size(dataSubj{1},1),size(dataSubj{1},2),numel(dataSubj));
-        
+
         for jjj = 1:numel(dataSubj)
             dataSubjMat(:,:,jjj) = dataSubj{jjj};
         end
-        
+
         % make data time x channels x trials
         dataSubjMat = permute(dataSubjMat,[2,1,3]);
-        
-        % select number of baseline trials to be same as number of trials for
-        % each subject
-        if size(totalBaselineDataSubj,3) >numel(dataSubj) % account for case where more spikes than baselines
-            totalBaselineDataSubj = totalBaselineDataSubj(:,:,randperm(size(totalBaselineDataSubj,3),numel(dataSubj)));
-        elseif size(totalBaselineDataSubj,3) <= numel(dataSubj)
-            dataSubjMat = dataSubjMat(:,:,randperm(size(dataSubjMat,3),size(totalBaselineDataSubj,3)));
-            %    totalBaselineDataSubj = totalBaselineDataSubj; % if same size, just have to match them up
+
+        if makeEqualTrials
+            % select number of baseline trials to be same as number of
+            % trials , default is now no to make more reproducible if able
+
+
+            % each subject
+            if size(totalBaselineDataSubj,3) >size(dataSubjMat,3) % account for case where more spikes than baselines
+                totalBaselineDataSubj = totalBaselineDataSubj(:,:,randperm(size(totalBaselineDataSubj,3),numel(dataSubj)));
+            elseif size(totalBaselineDataSubj,3) <= size(dataSubjMat,3)
+                dataSubjMat = dataSubjMat(:,:,randperm(size(dataSubjMat,3),size(totalBaselineDataSubj,3)));
+                %    totalBaselineDataSubj = totalBaselineDataSubj; % if same size, just have to match them up
+            end
+
         end
-        
-        disp(['Number of spike windows ' num2str(numel(dataSubj))])
-        disp(['Number of baseline windows ' num2str(size(totalBaselineDataSubj,3))])
-        
+
         %trial indicator
         trialsSubj = Selem(logicVec,7);
-        
+
         t = linspace(-0.5,0.5,size(dataSubjMat,1));
         %dataSubjMat = reshape(cell2mat(dataSubj),size(dataSubj{1},1),numel(dataSubj),size(dataSubj{1},2));
         %dataSubjMat = permute(dataSubjMat,[3,1,2]);
-        
+
         % deal with bad channels
         badChansSubj = badchidx{logicPts};
         goodChansVec = true(size(dataSubj{1},1),1);
         goodChansVec(badChansSubj) = false;
-        
+
         dataSubjMat(:,~goodChansVec,:) = nan;
-        
+        totalBaselineDataSubj(:,~goodChansVec,:) =nan;
+
+        % find trials where its nan across all channels throughout the
+        % trial and get rid of it
+        findBadTrials = squeeze(isnan(mean(dataSubjMat,1)));
+        [~,badTrialsLocs] = find(sum(findBadTrials,1)/size(findBadTrials,1)<1);
+
+        findBadTrialsBaseline = squeeze(isnan(mean(totalBaselineDataSubj,1)));
+        [~,badTrialsLocsBaseline] = find(sum(findBadTrialsBaseline,1)/size(findBadTrialsBaseline,1)<1);
+
+        dataSubjMat = dataSubjMat(:,:,badTrialsLocs);
+        totalBaselineDataSubj = totalBaselineDataSubj(:,:,badTrialsLocsBaseline);
+
         dataSubjMatGoodOnly = dataSubjMat(:,goodChansVec,:);
         totalBaselineDataSubjGoodOnly = totalBaselineDataSubj(:,goodChansVec,:);
-        
+
+        disp(['Number of spike windows ' num2str(size(dataSubjMat,3))])
+        disp(['Number of baseline windows ' num2str(size(totalBaselineDataSubj,3))])
+
         meanSpikesGoodOnly = squeeze(mean(dataSubjMatGoodOnly,3));
         meanSpikes = squeeze(mean(dataSubjMat,3));
-        
+
         stdSpikesGoodOnly = squeeze(std(dataSubjMatGoodOnly,0,3));
         stdSpikes = squeeze(std(dataSubjMat,0,3));
-        
+
         meanBaselineGoodOnly = squeeze(mean(totalBaselineDataSubjGoodOnly,3));
         meanBaseline = squeeze(mean(totalBaselineDataSubj,3));
-        
+
         stdBaselineGoodOnly = squeeze(std(totalBaselineDataSubjGoodOnly,0,3));
         stdBaseline = squeeze(std(totalBaselineDataSubj,0,3));
-        
+
         % rereference
         referencedData = ref2bipolar_reg(dataSubjMat,subjName);
         referencedDataSubSample = ref2bipolar_subsample(dataSubjMat,subjName);
-        
+
         referencedDataGoodOnly = referencedData(:,goodChansVec,:);
         referencedDataSubSampleGoodOnly = referencedDataSubSample(:,goodChansVec,:);
-        
+
         meanSpikesReferencedGoodOnly = squeeze(mean(referencedDataGoodOnly,3));
         meanSpikesReferencedSubSampleGoodOnly = squeeze(mean(referencedDataSubSampleGoodOnly,3));
-        
+
         stdSpikesReferencedGoodOnly = squeeze(std(referencedDataGoodOnly,0,3));
         stdSpikesReferencedSubSampleGoodOnly = squeeze(std(referencedDataSubSampleGoodOnly,0,3));
-        
+
         % rereference baseline
         referencedDataBaseline = ref2bipolar_reg(totalBaselineDataSubj,subjName);
         referencedDataBaselineSubSample = ref2bipolar_subsample(totalBaselineDataSubj,subjName);
-        
+
         referencedDataBaselineGoodOnly = referencedDataBaseline(:,goodChansVec,:);
         referencedDataBaselineSubSampleGoodOnly = referencedDataBaselineSubSample(:,goodChansVec,:);
-        
+
         meanSpikesReferencedBaselineGoodOnly = squeeze(mean(referencedDataBaselineGoodOnly,3));
         meanSpikesReferencedBaselineSubSampleGoodOnly = squeeze(mean(referencedDataBaselineSubSampleGoodOnly,3));
-        
+
         stdSpikesReferencedBaselineGoodOnly = squeeze(std(referencedDataBaselineGoodOnly,0,3));
         stdSpikesReferencedBaselineSubSampleGoodOnly = squeeze(std(referencedDataBaselineSubSampleGoodOnly,0,3));
-        
+
         %
         notNanCombined = ~isnan(referencedDataSubSampleGoodOnly) & ~isnan(referencedDataGoodOnly);
         notNanIndsCombined = find(squeeze(notNanCombined(256,:,1)));
-        
+
         %
         if useLL
             llw = cellLLnum{index};
@@ -247,67 +226,67 @@ for index = 1:length(folderFiguresCell)
             referencedDataSubSampleLL = line_length_alg(referencedDataSubSample,fs,llw);
             referencedDataGoodOnlyLL = line_length_alg(referencedDataGoodOnly,fs,llw);
             referencedDataSubSampleGoodOnlyLL = line_length_alg(referencedDataSubSampleGoodOnly,fs,llw);
-            
+
             referencedDataBaselineLL= line_length_alg(referencedDataBaseline,fs,llw);
             referencedDataBaselineSubSampleLL= line_length_alg(referencedDataBaselineSubSample,fs,llw);
             referencedDataBaselineGoodOnlyLL= line_length_alg(referencedDataBaselineGoodOnly,fs,llw);
             referencedDataBaselineSubSampleGoodOnlyLL= line_length_alg(referencedDataBaselineSubSampleGoodOnly,fs,llw);
-            
+
             referencedData = referencedDataLL;
             referencedDataGoodOnly = referencedDataGoodOnlyLL;
             referencedDataSubSample = referencedDataSubSampleLL;
             referencedDataSubSampleGoodOnly = referencedDataSubSampleGoodOnlyLL;
-            
+
             referencedDataBaseline = referencedDataBaselineLL;
             referencedDataBaselineSubSample = referencedDataBaselineSubSampleLL;
             referencedDataBaselineGoodOnly = referencedDataBaselineGoodOnlyLL;
             referencedDataBaselineSubSampleGoodOnly = referencedDataBaselineSubSampleGoodOnlyLL;
-            
+
             meanSpikesReferencedGoodOnly = squeeze(mean(referencedDataGoodOnly,3));
             meanSpikesReferencedSubSampleGoodOnly = squeeze(mean(referencedDataSubSampleGoodOnly,3));
-            
+
             % algorithm and plotting choices for line length
             colormapChoice = 'PuRd';
             desiredPlotBounds = [0 200];
             twoSidedPerm = false;
-            
+
         end
-        
+
         if useAbsDer
             % absolute value derivative
             referencedDataAbsDer = abs_deriv(referencedData);
             referencedDataSubSampleAbsDer = abs_deriv(referencedDataSubSample);
             referencedDataGoodOnlyAbsDer = abs_deriv(referencedDataGoodOnly);
             referencedDataSubSampleGoodOnlyAbsDer = abs_deriv(referencedDataSubSampleGoodOnly);
-            
+
             referencedDataBaselineAbsDer = abs_deriv(referencedDataBaseline);
             referencedDataBaselineSubSampleAbsDer = abs_deriv(referencedDataBaselineSubSample);
             referencedDataBaselineGoodOnlyAbsDer = abs_deriv(referencedDataBaselineGoodOnly);
             referencedDataBaselineSubSampleGoodOnlyAbsDer = abs_deriv(referencedDataBaselineSubSampleGoodOnly);
-            
+
             referencedData = referencedDataAbsDer;
             referencedDataGoodOnly = referencedDataGoodOnlyAbsDer;
             referencedDataSubSample = referencedDataSubSampleAbsDer;
             referencedDataSubSampleGoodOnly = referencedDataSubSampleGoodOnlyAbsDer;
-            
-            
+
+
             referencedDataBaseline = referencedDataBaselineAbsDer;
             referencedDataBaselineSubSample = referencedDataBaselineSubSampleAbsDer;
             referencedDataBaselineGoodOnly = referencedDataBaselineGoodOnlyAbsDer;
             referencedDataBaselineSubSampleGoodOnly = referencedDataBaselineSubSampleGoodOnlyAbsDer;
-            
+
             meanSpikesReferencedGoodOnly = squeeze(mean(referencedDataGoodOnly,3));
             meanSpikesReferencedSubSampleGoodOnly = squeeze(mean(referencedDataSubSampleGoodOnly,3));
-            
+
             % algorithm and plotting choices for line length
             colormapChoice = 'PuRd';
             desiredPlotBounds = [0 40];
             twoSidedPerm = false;
-            
+
         end
-        
+
         disp('Data Processed')
-        
+
         %% plotting
         % mean rereferenced data
         figure(figureMeanSpikes)
@@ -320,7 +299,7 @@ for index = 1:length(folderFiguresCell)
         % caxis([-max(abs(meanSpikesGoodOnly(:))) max(abs(meanSpikesGoodOnly(:)))])
         caxis(desiredPlotBounds)
         colormap(brewermap([],colormapChoice))
-        
+
         figure(figureMeanRerefSubSample)
         subplot(5,5,jj)
         imagesc(meanSpikesReferencedSubSampleGoodOnly(1:end-1,notNanIndsCombined)')
@@ -331,7 +310,7 @@ for index = 1:length(folderFiguresCell)
         %  caxis([-max(abs(meanSpikesReferencedSubSampleGoodOnly(:))) max(abs(meanSpikesReferencedSubSampleGoodOnly(:)))])
         caxis(desiredPlotBounds)
         colormap(brewermap([],colormapChoice))
-        
+
         figure(figureMeanReref)
         subplot(5,5,jj)
         imagesc(meanSpikesReferencedGoodOnly(1:end-1,notNanIndsCombined)')
@@ -342,7 +321,7 @@ for index = 1:length(folderFiguresCell)
         %caxis([-max(abs(meanSpikesReferencedGoodOnly(:))) max(abs(meanSpikesReferencedGoodOnly(:)))])
         caxis(desiredPlotBounds)
         colormap(brewermap([],colormapChoice))
-        
+
         % mean baseline data
         figure(figureBaselineMean)
         subplot(5,5,jj)
@@ -354,7 +333,7 @@ for index = 1:length(folderFiguresCell)
         %caxis([-max(abs(meanBaselineGoodOnly(:))) max(abs(meanBaselineGoodOnly(:)))])
         caxis(desiredPlotBounds)
         colormap(brewermap([],colormapChoice))
-        
+
         figure(figureBaselineMeanRerefSubSample)
         subplot(5,5,jj)
         imagesc(meanSpikesReferencedBaselineSubSampleGoodOnly(:,notNanIndsCombined)')
@@ -365,7 +344,7 @@ for index = 1:length(folderFiguresCell)
         %caxis([-max(abs(meanSpikesReferencedBaselineSubSampleGoodOnly(:))) max(abs(meanSpikesReferencedBaselineSubSampleGoodOnly(:)))])
         caxis(desiredPlotBounds)
         colormap(brewermap([],colormapChoice))
-        
+
         figure(figureBaselineMeanReref)
         subplot(5,5,jj)
         imagesc(meanSpikesReferencedBaselineGoodOnly(:,notNanIndsCombined)')
@@ -376,7 +355,7 @@ for index = 1:length(folderFiguresCell)
         %caxis([-max(abs(meanSpikesReferencedBaselineGoodOnly(:))) max(abs(meanSpikesReferencedBaselineGoodOnly(:)))])
         caxis(desiredPlotBounds)
         colormap(brewermap([],colormapChoice))
-        
+
         % std rereferenced data
         figure(figureStdSpikes)
         subplot(5,5,jj)
@@ -388,19 +367,19 @@ for index = 1:length(folderFiguresCell)
         % caxis([-max(abs(stdSpikesGoodOnly(:))) max(abs(stdSpikesGoodOnly(:)))])
         caxis([-2000 2000])
         colormap(brewermap([],colormapChoice))
-        
+
         figure(figureStdRerefSubSample)
         subplot(5,5,jj)
         imagesc(stdSpikesReferencedSubSampleGoodOnly(1:end-1,notNanIndsCombined)')
         xt = get(gca, 'XTick');                                             % Original 'XTick' Values
         xtlbl = linspace(-0.5,0.5, numel(xt));                     % New 'XTickLabel' Vector
         set(gca, 'XTick',xt, 'XTickLabel',xtlbl)   % Label Ticks
-        
+
         title(['Subject ' subjName])
         %caxis([-max(abs(stdSpikesReferencedSubSampleGoodOnly(:))) max(abs(stdSpikesReferencedSubSampleGoodOnly(:)))])
         caxis([-2000 2000])
         colormap(brewermap([],colormapChoice))
-        
+
         figure(figureStdReref)
         subplot(5,5,jj)
         imagesc(stdSpikesReferencedGoodOnly(1:end-1,notNanIndsCombined)')
@@ -411,7 +390,7 @@ for index = 1:length(folderFiguresCell)
         % caxis([-max(abs(stdSpikesReferencedGoodOnly(:))) max(abs(stdSpikesReferencedGoodOnly(:)))])
         caxis([-2000 2000])
         colormap(brewermap([],colormapChoice))
-        
+
         % std baseline data
         figure(figureBaselineStd)
         subplot(5,5,jj)
@@ -423,7 +402,7 @@ for index = 1:length(folderFiguresCell)
         caxis([-max(abs(stdBaselineGoodOnly(:))) max(abs(stdBaselineGoodOnly(:)))])
         caxis([-2000 2000])
         colormap(brewermap([],colormapChoice))
-        
+
         figure(figureBaselineStdRerefSubSample)
         subplot(5,5,jj)
         imagesc(stdSpikesReferencedBaselineSubSampleGoodOnly(:,notNanIndsCombined)')
@@ -434,7 +413,7 @@ for index = 1:length(folderFiguresCell)
         caxis([-max(abs(stdSpikesReferencedBaselineSubSampleGoodOnly(:))) max(abs(stdSpikesReferencedBaselineSubSampleGoodOnly(:)))])
         caxis([-2000 2000])
         colormap(brewermap([],colormapChoice))
-        
+
         figure(figureBaselineStdReref)
         subplot(5,5,jj)
         imagesc(stdSpikesReferencedBaselineGoodOnly(:,notNanIndsCombined)')
@@ -445,7 +424,7 @@ for index = 1:length(folderFiguresCell)
         %  caxis([-max(abs(stdSpikesReferencedBaselineGoodOnly(:))) max(abs(stdSpikesReferencedBaselineGoodOnly(:)))])
         caxis([-2000 2000])
         colormap(brewermap([],colormapChoice))
-        
+
         if doPlotIndSubj
             figure
             imagesc(meanSpikesReferencedSubSampleGoodOnly(:,notNanIndsCombined)')
@@ -456,7 +435,7 @@ for index = 1:length(folderFiguresCell)
             ylabel('Channel')
             title([patientsVetted{jj} ' Average spikes - 8 mm rereference'])
             colormap(brewermap([],colormapChoice))
-            
+
             figure
             imagesc(meanSpikesReferencedGoodOnly(:,notNanIndsCombined)')
             xt = get(gca, 'XTick');                                             % Original 'XTick' Values
@@ -466,7 +445,7 @@ for index = 1:length(folderFiguresCell)
             ylabel('Channel')
             title([patientsVetted{jj} ' Average spikes - 4 mm rereference'])
             colormap(brewermap([],colormapChoice))
-            
+
         end
         %% permutation testing
         if doPerm
@@ -476,39 +455,39 @@ for index = 1:length(folderFiguresCell)
             notNanSub = ~isnan(referencedDataSubSampleGoodOnly);
             notNanSubInds = find(squeeze(notNanSub(256,:,1)));
             % permutation test on a by channel basis
-            
+
             if doInd
                 maxCluster{jj}.subj = subjName;
                 tempPvalues = nan(size(referencedDataGoodOnly,2),1);
                 % permutation test for background cluster based
                 permResultsCell{jj}.subj = subjName;
-                
+
                 numGoodChansFull = length(notNanInds);
                 tempCellclust = cell(numGoodChansFull,1);
                 tempCellpVal = cell(numGoodChansFull,1);
                 tempCellpValAdjust = cell(numGoodChansFull,1);
                 tempPvaluesInd = nan(numGoodChansFull,1);
-                
+
                 numGoodChansFullSub = length(notNanSubInds);
                 tempCellclustSub = cell(numGoodChansFullSub,1);
                 tempCellpValSub = cell(numGoodChansFullSub,1);
                 tempCellpValAdjustSub = cell(numGoodChansFullSub,1);
                 tempPvaluesIndSub = nan(numGoodChansFullSub,1);
-                
+
                 for chanGoodInd = 1:numGoodChansFull
                     goodChan = notNanInds(chanGoodInd);
                     [clusters, pValues, ~, ~] = permutest(squeeze(referencedDataGoodOnly(1:end-1,goodChan,:)),squeeze(referencedDataBaselineGoodOnly(:,goodChan,:)),false,[],[],twoSidedPerm);
-                    
+
                     tempCellclust{chanGoodInd} = clusters;
                     tempCellpVal{chanGoodInd} = pValues;
-                    
+
                     % build p value matrix
                     tempPvaluesInd(chanGoodInd) = pValues(1);
-                    
+
                     % channelwise FDR
                     [h, crit_p, adj_ci_cvrg, adj_p]=fdr_bh(pValues,0.05,'dep');
                     tempCellpValAdjust{chanGoodInd} = adj_p;
-                    
+
                     %                                 % extract clusters and tsums
                     %                                 if ~isempty(permResultsCell{jj}.clusters{goodChan}{1})
                     %                                     maxCluster{jj}.clusterMax{goodChan} = clusters{1};
@@ -520,7 +499,7 @@ for index = 1:length(folderFiguresCell)
                     %                                 end
                     disp(['regular sampled done for channel ' num2str(goodChan)])
                 end
-                
+
                 for chanGoodInd = 1:numGoodChansFull
                     goodChan = notNanInds(chanGoodInd);
                     permResultsCell{jj}.clusters{goodChan} = tempCellclust{chanGoodInd};
@@ -528,7 +507,7 @@ for index = 1:length(folderFiguresCell)
                     permResultsCell{jj}.adjpValues{goodChan} = tempCellpValAdjust{chanGoodInd};
                     tempPvalues(goodChan) = tempPvaluesInd(chanGoodInd);
                 end
-                
+
                 % do FDR correction across all good channels number 1 p-value
                 [h, crit_p, adj_ci_cvrg, adj_p]=fdr_bh(tempPvalues(notNanIndsCombined),0.05,'dep');
                 listChans = [];
@@ -542,30 +521,30 @@ for index = 1:length(folderFiguresCell)
                         meanWidthList = [meanWidthList permResultsCell{jj}.clusterWidth{goodChan}];
                     end
                 end
-                
+
                 permResultsCell{jj}.numSigChannels = length(listChans);
                 permResultsCell{jj}.sigChannels = listChans;
                 permResultsCell{jj}.meanWidthList = meanWidthList;
                 permResultsCell{jj}.meanWidth = mean(meanWidthList);
-                
+
                 tempPvaluesSub = nan(size(referencedDataGoodOnly,2),1);
-                
+
                 for chanGoodIndSub = 1:numGoodChansFullSub
                     goodChanSub = notNanSubInds(chanGoodIndSub);
                     [clustersSub, pValuesSub,~, ~]  = permutest(squeeze(referencedDataSubSampleGoodOnly(1:end-1,goodChanSub,:)),squeeze(referencedDataBaselineSubSampleGoodOnly(:,goodChanSub,:)),false,[],[],twoSidedPerm);
-                    
+
                     tempCellclustSub{chanGoodIndSub} = clustersSub;
                     tempCellpValSub{chanGoodIndSub} = pValuesSub;
-                    
+
                     % build p value matrix
                     tempPvaluesIndSub(chanGoodIndSub) = pValuesSub(1);
-                    
+
                     % channelwise FDR
                     [h, crit_p, adj_ci_cvrg, adj_p]=fdr_bh(pValuesSub,0.05,'dep');
                     tempCellpValAdjustSub{chanGoodIndSub} = adj_p;
-                    
+
                     disp(['subsampled done for channel ' num2str(goodChanSub)])
-                    
+
                     %                                 if ~isempty(permResultsCell{jj}.clustersSub{goodChanSub}{1})
                     %
                     %                                     maxCluster{jj}.clusterMaxSub{goodChan} = clustersSub{1};
@@ -575,9 +554,9 @@ for index = 1:length(folderFiguresCell)
                     %                                     [boundInd] = boundary(row,col) ;
                     %                                     maxClusterConn{jj}.boundIndSub{goodChan} = boundInd;
                     %                                 end
-                    
+
                 end
-                
+
                 for chanGoodIndSub = 1:numGoodChansFullSub
                     goodChanSub = notNanSubInds(chanGoodIndSub);
                     permResultsCell{jj}.clustersSub{goodChanSub} = tempCellclustSub{chanGoodIndSub};
@@ -585,7 +564,7 @@ for index = 1:length(folderFiguresCell)
                     permResultsCell{jj}.adjpValuesSub{goodChanSub} = tempCellpValAdjustSub{chanGoodIndSub};
                     tempPvaluesSub(goodChanSub) = tempPvaluesIndSub(chanGoodIndSub);
                 end
-                
+
                 % do FDR correction across all good channels number 1 p-value
                 [h, crit_p, adj_ci_cvrg, adj_p]=fdr_bh(tempPvaluesSub(notNanIndsCombined),0.05,'dep');
                 listChansSub = [];
@@ -599,31 +578,31 @@ for index = 1:length(folderFiguresCell)
                         meanWidthSubList = [meanWidthSubList permResultsCell{jj}.clusterWidthSub{goodChanSub}];
                     end
                 end
-                
+
                 permResultsCell{jj}.numSigChannelsSub = length(listChansSub);
                 permResultsCell{jj}.sigChannelsSub = listChansSub;
                 permResultsCell{jj}.meanWidthListSub = meanWidthSubList;
                 permResultsCell{jj}.meanWidthSub = mean(meanWidthSubList);
-                
+
                 disp(['Individual Channelwise Permutation test done for Subject ' subjName])
                 %%
                 dataIntTemp = meanSpikesReferencedGoodOnly(1:end-1,notNanIndsCombined);
-                
+
                 figure(figureTotal)
                 nexttile
                 title(patientsVetted{jj})
-                
+
                 figure(figureTotalSub)
                 nexttile
                 title(patientsVetted{jj})
-                
+
                 if plotPermChans & ~isempty(dataIntTemp) & sum(~isnan(dataIntTemp(:)))
-                   
+
                     desiredPlotBoundsSubj = [0 max(dataIntTemp(:))];
-                    
+
                     numPlotVec = length(notNanIndsCombined);
                     tPlot = t(1:end-1);
-                    
+
                     figure
                     imagesc([min(tPlot) max(tPlot)],[1,numPlotVec],meanSpikesReferencedGoodOnly(1:end-1,notNanIndsCombined)')
                     %                xt = get(gca, 'XTick');                                             % Original 'XTick' Values
@@ -651,8 +630,8 @@ for index = 1:length(folderFiguresCell)
                         exportgraphics(currentFig,fullfile(folderFigures,['fdr_' subjName '_perm.png']),'Resolution',600)
                         exportgraphics(currentFig,fullfile(folderFigures,['fdr_' subjName '_perm.eps']))
                     end
-                    
-                    
+
+
                     figure(figureTotal)
                     hold on
                     imagesc([min(tPlot) max(tPlot)],[1,numPlotVec],meanSpikesReferencedGoodOnly(1:end-1,notNanIndsCombined)')
@@ -668,8 +647,8 @@ for index = 1:length(folderFiguresCell)
                         end
                     end
                     title(patientsVetted{jj});
-                    
-                    
+
+
                     figure
                     imagesc([-0.5 0.5],[1,numPlotVec],meanSpikesReferencedGoodOnly(1:end-1,notNanIndsCombined)')
                     %   xticks([-0.5 -0.25 0 0.25 0.5])
@@ -693,13 +672,13 @@ for index = 1:length(folderFiguresCell)
                     currentFig.Position = [839 109 1408 1229];
                     title(['Subject ' subjName  ' Average spikes - 4 mm rereference'])
                     set(gca,'FontSize',20)
-                    
+
                     if savePlots
                         exportgraphics(currentFig,fullfile(folderFigures,[subjName '_perm.png']),'Resolution',600)
                         exportgraphics(currentFig,fullfile(folderFigures,[subjName '_perm.eps']))
                     end
-                    
-                    
+
+
                     figure
                     imagesc([-0.5 0.5],[1,numPlotVec],meanSpikesReferencedSubSampleGoodOnly(1:end-1,notNanIndsCombined)')
                     %  xticks([-0.5 -0.25 0 0.25 0.5])
@@ -719,19 +698,19 @@ for index = 1:length(folderFiguresCell)
                             end
                         end
                     end
-                    
+
                     currentFig = gcf;
                     currentFig.Position = [839 109 1408 1229];
-                    
+
                     title(['Subject ' subjName ' Average spikes - 8 mm rereference - FDR'])
                     set(gca,'FontSize',20)
-                    
+
                     if savePlots
                         exportgraphics(currentFig,fullfile(folderFigures,['fdr_subsample' subjName '_perm.png']),'Resolution',600)
                         exportgraphics(currentFig,fullfile(folderFigures,['fdr_subsample' subjName '_perm.eps']))
                     end
-                    
-                    
+
+
                     figure(figureTotalSub)
                     imagesc([-0.5 0.5],[1,numPlotVec],meanSpikesReferencedSubSampleGoodOnly(1:end-1,notNanIndsCombined)')
                     colormap(brewermap([],colormapChoice))
@@ -746,9 +725,9 @@ for index = 1:length(folderFiguresCell)
                         end
                     end
                     title(patientsVetted{jj});
-                    
-                    
-                    
+
+
+
                     figure
                     imagesc([-0.5 0.5],[1,numPlotVec],meanSpikesReferencedSubSampleGoodOnly(1:end-1,notNanIndsCombined)')
                     %  xticks([-0.5 -0.25 0 0.25 0.5])
@@ -768,22 +747,22 @@ for index = 1:length(folderFiguresCell)
                             end
                         end
                     end
-                    
+
                     currentFig = gcf;
                     currentFig.Position = [839 109 1408 1229];
                     title(['Subject ' subjName  ' Average spikes - 8 mm rereference'])
                     set(gca,'FontSize',20)
-                    
+
                     if savePlots
                         exportgraphics(currentFig,fullfile(folderFigures,['subsample_' subjName '_perm.png']),'Resolution',600)
                         exportgraphics(currentFig,fullfile(folderFigures,['subsample_' subjName '_perm.eps']))
                     end
-                    
+
                     figure2x2 = figure;
                     tiledlayout(2,2,'TileSpacing','Compact','Padding','Compact');
                     figure(figure2x2)
                     figure2x2.Position = [839 109 1408 1229];
-                    
+
                     nexttile
                     imagesc([min(tPlot) max(tPlot)],[1,numPlotVec],meanSpikesReferencedGoodOnly(1:end-1,notNanIndsCombined)')
                     colormap(brewermap([],colormapChoice))
@@ -799,8 +778,8 @@ for index = 1:length(folderFiguresCell)
                     end
                     title(['Subject ' subjName ' Average spikes'])
                     set(gca,'FontSize',14)
-                    
-                    
+
+
                     figure(figure2x2)
                     nexttile
                     imagesc([min(tPlot) max(tPlot)],[1,numPlotVec],meanSpikesReferencedGoodOnly(1:end-1,notNanIndsCombined)')
@@ -817,8 +796,8 @@ for index = 1:length(folderFiguresCell)
                     end
                     title(['Subject ' subjName ' Average spikes - FDR'])
                     set(gca,'FontSize',14)
-                    
-                    
+
+
                     figure(figure2x2)
                     nexttile
                     imagesc([min(tPlot) max(tPlot)],[1,numPlotVec],meanSpikesReferencedGoodOnly(1:end-1,notNanIndsCombined)')
@@ -835,7 +814,7 @@ for index = 1:length(folderFiguresCell)
                     end
                     title(['Subject ' subjName ' Average spikes - subsampled'])
                     set(gca,'FontSize',14)
-                    
+
                     figure(figure2x2)
                     nexttile
                     imagesc([min(tPlot) max(tPlot)],[1,numPlotVec],meanSpikesReferencedGoodOnly(1:end-1,notNanIndsCombined)')
@@ -854,24 +833,24 @@ for index = 1:length(folderFiguresCell)
                     ylabel('Channel')
                     title(['Subject ' subjName ' Average spikes - subsampled - FDR'])
                     set(gca,'FontSize',14)
-                    
+
                     if savePlots
                         exportgraphics(figure2x2,fullfile(folderFigures,[subjName '_2x2.png']),'Resolution',600)
                         exportgraphics(figure2x2,fullfile(folderFigures,[subjName '_2x2.eps']))
                     end
-                    
-                    
+
+
                 end
-                
+
             end
-            
+
             if doConn
                 disp(['Doing connected cluster permutation test'])
-                
+
                 % permutation test for background cluster based
                 [clustersConn, pValuesConn, tSumsConn, permutationDistributionConn ] = permutest(referencedDataGoodOnly(1:end-1,squeeze(notNan(256,:,1)),:),referencedDataBaselineGoodOnly(:,squeeze(notNan(256,:,1)),:),false,[],[],twoSidedPerm);
                 [clustersSubConn, pValuesSubConn, tSumsSubConn, permutationDistributionSubConn]  = permutest(referencedDataSubSampleGoodOnly(1:end-1,squeeze(notNanSub(256,:,1)),:),referencedDataBaselineSubSampleGoodOnly(:,squeeze(notNanSub(256,:,1)),:),false,[],[],twoSidedPerm);
-                
+
                 permResultsCellConn{jj}.subj = subjName;
                 permResultsCellConn{jj}.clusters  = clustersConn;
                 permResultsCellConn{jj}.pValues = pValuesConn;
@@ -881,7 +860,7 @@ for index = 1:length(folderFiguresCell)
                 permResultsCellConn{jj}.pValuesSub = pValuesSubConn;
                 permResultsCellConn{jj}.tSumsSub = tSumsSubConn;
                 permResultsCellConn{jj}.permutationDistributionSub = permutationDistributionSubConn;
-                
+
                 % extract clusters and tsums
                 maxClusterConn{jj}.subj = subjName;
                 maxClusterConn{jj}.clusterMax = clustersConn{1};
@@ -890,7 +869,7 @@ for index = 1:length(folderFiguresCell)
                 maxClusterConn{jj}.clusterMaxMatrixInds = [row col zdir];
                 [boundInd] = boundary(row,col) ;
                 maxClusterConn{jj}.boundInd = boundInd;
-                
+
                 maxClusterConn{jj}.clusterMaxSub = clustersSubConn{1};
                 maxClusterConn{jj}.tSumsMaxSub = tSumsSubConn(1);
                 [row,col,zdir] = ind2sub(size(referencedDataSubSampleGoodOnly(1:end-1,:,:)),clustersSubConn{1});
@@ -898,7 +877,7 @@ for index = 1:length(folderFiguresCell)
                 [boundInd] = boundary(row,col) ;
                 maxClusterConn{jj}.boundIndSub = boundInd;
                 disp(['Connected Cluster Permutation test done for Subject ' subjName])
-                
+
             end
         end
         %% SVM
@@ -914,7 +893,7 @@ for index = 1:length(folderFiguresCell)
                     end
                 end
             end
-            
+
             if ~isempty(chanListSVM)
                 try
                     SVMModel = fitcsvm(reshape(permute(referencedDataGoodOnly(:,chanListSVM,:),[3 1 2]),length(trialsSubj),[]),trialsSubj);
@@ -929,9 +908,9 @@ for index = 1:length(folderFiguresCell)
                     end
                 catch
                     SVMModel = nan;
-                    
+
                 end
-                
+
                 chanListSVMsub = [];
                 for chanGoodInd = 1:length(notNanIndsCombined)
                     goodChanSub = notNanIndsCombined(chanGoodInd);
@@ -955,20 +934,20 @@ for index = 1:length(folderFiguresCell)
                 catch
                     SVMModelSubSample = nan;
                 end
-                
+
                 disp(['SVM done for Subject ' subjName])
-                
+
                 svmCell{jj}.svm = SVMModel;
                 svmCell{jj}.svmSub = SVMModelSubSample;
             end
         end
-        
+
         clearvars notNanInds notNanIndsCombined notNan notNanInds notNanSub notNanSubInds
-        
+
     end
-    
+
     %% captions on figures
-    
+
     %totalFigs
     figure(figureTotal)
     xlabel('Time (s)')
@@ -978,7 +957,7 @@ for index = 1:length(folderFiguresCell)
         exportgraphics(figureMeanSpikes,fullfile(folderFigures,'total_spikes_significant.png'),'Resolution',600)
         exportgraphics(figureMeanSpikes,fullfile(folderFigures,'total_spikes_significant.eps'))
     end
-    
+
     figure(figureTotalSub)
     xlabel('Time (s)')
     ylabel('Channel')
@@ -987,19 +966,19 @@ for index = 1:length(folderFiguresCell)
         exportgraphics(figureMeanSpikes,fullfile(folderFigures,'total_spikes_significant_sub.png'),'Resolution',600)
         exportgraphics(figureMeanSpikes,fullfile(folderFigures,'total_spikes_significant_sub.eps'))
     end
-    
+
     % mean spikes
     figure(figureMeanSpikes)
     xlabel('Time (s)')
     ylabel('Channel')
     sgtitle('Average spikes - no rereference')
     figureMeanSpikes.Position = [839 109 1408 1229];
-    
+
     if savePlots
         exportgraphics(figureMeanSpikes,fullfile(folderFigures,'mean_spikes.png'),'Resolution',600)
         exportgraphics(figureMeanSpikes,fullfile(folderFigures,'mean_spikes.eps'))
     end
-    
+
     figure(figureMeanRerefSubSample)
     xlabel('Time (s)')
     ylabel('Channel')
@@ -1009,7 +988,7 @@ for index = 1:length(folderFiguresCell)
         exportgraphics(figureMeanRerefSubSample,fullfile(folderFigures,'mean_spikes_subsample_rereference.png'),'Resolution',600)
         exportgraphics(figureMeanRerefSubSample,fullfile(folderFigures,'mean_spikes_subsample_rereference.eps'))
     end
-    
+
     figure(figureMeanReref)
     xlabel('Time (s)')
     ylabel('Channel')
@@ -1019,7 +998,7 @@ for index = 1:length(folderFiguresCell)
         exportgraphics(figureMeanReref,fullfile(folderFigures,'mean_spikes_rereference.png'),'Resolution',600)
         exportgraphics(figureMeanReref,fullfile(folderFigures,'mean_spikes_rereference.eps'))
     end
-    
+
     % mean baseline
     figure(figureBaselineMean)
     xlabel('Time (s)')
@@ -1030,7 +1009,7 @@ for index = 1:length(folderFiguresCell)
         exportgraphics(figureBaselineMean,fullfile(folderFigures,'mean_baseline.png'),'Resolution',600)
         exportgraphics(figureBaselineMean,fullfile(folderFigures,'mean_baseline.eps'))
     end
-    
+
     figure(figureBaselineMeanRerefSubSample)
     xlabel('Time (s)')
     ylabel('Channel')
@@ -1040,7 +1019,7 @@ for index = 1:length(folderFiguresCell)
         exportgraphics(figureBaselineMeanRerefSubSample,fullfile(folderFigures,'mean_baseline_subsample.png'),'Resolution',600)
         exportgraphics(figureBaselineMeanRerefSubSample,fullfile(folderFigures,'mean_baseline_subsample.eps'))
     end
-    
+
     figure(figureBaselineMeanReref)
     xlabel('Time (s)')
     ylabel('Channel')
@@ -1050,7 +1029,7 @@ for index = 1:length(folderFiguresCell)
         exportgraphics(figureBaselineMeanReref,fullfile(folderFigures,'mean_baseline_rereference.png'),'Resolution',600)
         exportgraphics(figureBaselineMeanReref,fullfile(folderFigures,'mean_baseline_rereference.eps'))
     end
-    
+
     % std spikes
     figure(figureStdSpikes)
     xlabel('Time (s)')
@@ -1061,7 +1040,7 @@ for index = 1:length(folderFiguresCell)
         exportgraphics(figureStdSpikes,fullfile(folderFigures,'std_spikes.png'),'Resolution',600)
         exportgraphics(figureStdSpikes,fullfile(folderFigures,'std_spikes.eps'))
     end
-    
+
     figure(figureStdRerefSubSample)
     xlabel('Time (s)')
     ylabel('Channel')
@@ -1071,7 +1050,7 @@ for index = 1:length(folderFiguresCell)
         exportgraphics(figureStdRerefSubSample,fullfile(folderFigures,'std_spikes_subsample.png'),'Resolution',600)
         exportgraphics(figureStdRerefSubSample,fullfile(folderFigures,'std_spikes_subsample.eps'))
     end
-    
+
     figure(figureStdReref)
     xlabel('Time (s)')
     ylabel('Channel')
@@ -1081,7 +1060,7 @@ for index = 1:length(folderFiguresCell)
         exportgraphics(figureStdReref,fullfile(folderFigures,'std_spikes_rereference.png'),'Resolution',600)
         exportgraphics(figureStdReref,fullfile(folderFigures,'std_spikes_rereference.eps'))
     end
-    
+
     % std baseline
     figure(figureBaselineStd)
     xlabel('Time (s)')
@@ -1092,7 +1071,7 @@ for index = 1:length(folderFiguresCell)
         exportgraphics(figureBaselineStd,fullfile(folderFigures,'std_baseline.png'),'Resolution',600)
         exportgraphics(figureBaselineStd,fullfile(folderFigures,'std_baseline.eps'))
     end
-    
+
     figure(figureBaselineStdRerefSubSample)
     xlabel('Time (s)')
     ylabel('Channel')
@@ -1102,7 +1081,7 @@ for index = 1:length(folderFiguresCell)
         exportgraphics(figureBaselineStdRerefSubSample,fullfile(folderFigures,'std_baseline_subsample.png'),'Resolution',600)
         exportgraphics(figureBaselineStdRerefSubSample,fullfile(folderFigures,'std_baseline_subsample.eps'))
     end
-    
+
     figure(figureBaselineStdReref)
     xlabel('Time (s)')
     ylabel('Channel')
@@ -1112,9 +1091,9 @@ for index = 1:length(folderFiguresCell)
         exportgraphics(figureBaselineStdReref,fullfile(folderFigures,'std_baseline_rereference.png'),'Resolution',600)
         exportgraphics(figureBaselineStdReref,fullfile(folderFigures,'std_baseline_rereference.eps'))
     end
-    
+
     save(fullfile(folderFigures,saveNameSpecific),'permResultsCell','referencedDataBaselineGoodOnly','referencedDataGoodOnly','referencedData','referencedDataBaseline','referencedDataSubSample','referencedDataBaselineSubSample','referencedDataBaselineSubSampleGoodOnly','patientsVetted','svmCell')
     clearvars permResultsCell svmCell referencedDataBaselineGoodOnly referencedDataGoodOnly referencedData referencedDataBaseline referencedDataSubSample referencedDataBaselineSubSample referencedDataBaselineSubSampleGoodOnly
     close all
-    
+
 end
