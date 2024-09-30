@@ -4,8 +4,12 @@
 % (3) Runs ANOVA on difference in # channels w/ spikes by condition
 % (4) Runs ANOVA on difference in mean spike duration (ms) by condition
 
-folderDataBase = '/home/devkrish/bipolar_project/JuneResults';
-spikeStats = load(fullfile(folderDataBase,'spikeStats.mat'));
+%folderDataBase = '/home/devkrish/bipolar_project/JuneResults';
+%folderDataBase = '/scratch/bipolar_expedition';
+folderDataBase = '/home/dcaldwell/results';
+
+
+spikeStats = load(fullfile(folderDataBase,'spikeStatsV3.mat'));
 conds = {'LL20', 'LL40', 'LL100', 'absDer'};
 
 
@@ -43,13 +47,13 @@ widthCell = spikeStats.statsStruct.meanWidthVec;
 widthCellSub = spikeStats.statsStruct.meanWidthVecSub;
 
 for i=1:length(conds)
-    if i==3 %LL 100
-        vecB = [NaN, widthCell{i}]; 
-        vecBsub = [NaN, widthCellSub{i}];
-        B = [B; vecB];
-        Bsub = [Bsub; vecBsub];
-        continue;
-    end
+%    if i==3 %LL 100
+%        vecB = [NaN, widthCell{i}]; 
+%        vecBsub = [NaN, widthCellSub{i}];
+%        B = [B; vecB];
+%        Bsub = [Bsub; vecBsub];
+ %       continue;
+  %  end
     B = [B; widthCell{i}];
     Bsub = [Bsub; widthCellSub{i}];
 end
@@ -88,11 +92,11 @@ Awidth = [];
 diffWidthsCell = spikeStats.statsStruct.meanWidthDiff;
 
 for i = 1:length(conds)
-    if i==3
-        vec = [NaN, diffWidthsCell{i}];
-        Awidth = [Awidth; vec];
-        continue;
-    end
+%    if i==3
+%        vec = [NaN, diffWidthsCell{i}];
+%        Awidth = [Awidth; vec];
+ %       continue;
+ %   end
     Awidth = [Awidth; diffWidthsCell{i}];
 end
 

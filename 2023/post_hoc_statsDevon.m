@@ -1,13 +1,21 @@
 % Updated script to do statistics post hoc on data
 %% Load in data
-savePostHocPlots = 0;
+savePostHocPlots = 1;
 run2x2plots = 1;
-saveSpikeStats = 0;
-savePlots = 0;
+saveSpikeStats = 1;
+savePlots = 1;
 
-folderDataBase = '/home/devkrish/bipolar_project/JuneResults';
+%folderDataBase = '/home/devkrish/bipolar_project/JuneResults';
+folderDataBase = '/home/dcaldwell/results';
+
+%folderDataBase = '/scratch/bipolar_expedition';
+
+
 folderFiguresCell = {fullfile(folderDataBase,'LL20'),fullfile(folderDataBase,'LL40'),fullfile(folderDataBase,'LL100'),fullfile(folderDataBase,'absDer')};
-saveName = {'LL20','LL40','LL100','absDer'};
+%folderFiguresCell = {fullfile(folderDataBase),fullfile(folderDataBase),fullfile(folderDataBase),fullfile(folderDataBase)};
+
+
+saveName = {'LL20_v3','LL40_v3','LL100_v3','absDer_v3'};
 statsStruct = struct;
 
 outputTable = table;
@@ -309,6 +317,6 @@ end
 %% Save Statistics
 
 if saveSpikeStats
-    saveNameSpecific = 'spikeStats.mat';
+    saveNameSpecific = 'spikeStatsV3.mat';
     save(fullfile(folderDataBase,saveNameSpecific),'statsStruct');
 end
