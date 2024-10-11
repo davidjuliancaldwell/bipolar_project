@@ -1,5 +1,9 @@
 % BIPOLAR PAIR ANALYSIS: LINEAR
 
+
+% % pausing work on this function for now (2024)
+
+
 onlygrids=true;
 onlydepths=false;
 onlystrips=false;
