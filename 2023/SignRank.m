@@ -4,10 +4,7 @@
 % (3) Runs ANOVA on difference in # channels w/ spikes by condition
 % (4) Runs ANOVA on difference in mean spike duration (ms) by condition
 
-%folderDataBase = '/home/devkrish/bipolar_project/JuneResults';
-%folderDataBase = '/scratch/bipolar_expedition';
-folderDataBase = '/home/dcaldwell/results';
-
+folderDataBase = '/scratch/bipolar_expedition';
 
 spikeStats = load(fullfile(folderDataBase,'spikeStatsV3.mat'));
 conds = {'LL20', 'LL40', 'LL100', 'absDer'};

@@ -19,8 +19,7 @@ fs = 512; % sampling rate Hz
 
 data_root = getenv("KLEEN_DATA");
 datadir = fullfile(data_root, 'bipolar_expedition');
-folderDataBase = '/home/dcaldwell/results'; %%% change to be on the main data drive
-
+folderDataBase = '/scratch/bipolar_expedition'; 
 
 %fileSpikes = '/Volumes/KLEEN_DRIVE/David/Bipolar project/taggedspikes.mat'; %old
 fileSpikes = fullfile(datadir, 'taggedspikes_April2022.mat');

@@ -5,11 +5,7 @@ run2x2plots = 1;
 saveSpikeStats = 1;
 savePlots = 1;
 
-%folderDataBase = '/home/devkrish/bipolar_project/JuneResults';
-folderDataBase = '/home/dcaldwell/results';
-
-%folderDataBase = '/scratch/bipolar_expedition';
-
+folderDataBase = '/scratch/bipolar_expedition';
 
 folderFiguresCell = {fullfile(folderDataBase,'LL20'),fullfile(folderDataBase,'LL40'),fullfile(folderDataBase,'LL100'),fullfile(folderDataBase,'absDer')};
 %folderFiguresCell = {fullfile(folderDataBase),fullfile(folderDataBase),fullfile(folderDataBase),fullfile(folderDataBase)};
