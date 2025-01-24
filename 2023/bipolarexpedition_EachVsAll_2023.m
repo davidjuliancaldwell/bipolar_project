@@ -1,34 +1,32 @@
 function [mDiff,mb_m,mARb_m,binz,frx]=bipolarexpedition_EachVsAll_2023(pt,nchtocheck,windowstocheck)
 % BIPOLAR PAIR ANALYSIS: EACH VS. ALL
 % see loopbipolarexpedition.m to loop across patients and analyze
+% EC175 and EC183 both have intact 16x16 square grids (channel #s 1:256)
 
 if ~exist('pt','var')||isempty(pt); pt='EC175'; end %pt='EC175'; % EC175 and EC183 both have intact 16x16 square grids (channel #s 1:256)
 if ~exist('nchtocheck','var')||isempty(nchtocheck); nchtocheck=128*2; end
 if ~exist('windowstocheck','var')||isempty(windowstocheck); windowstocheck=250; end %each window is 1 second of data (non-overlapping)
 
-none1sqrt2log3=2; % 1: no transform, 2: square root, 3: log
+none1sqrt2log3=3; % 1: no transform, 2: square root, 3: log
 g1s2d3=1; % use either grids (1) or strips (2) or depths (3) but not the others
-binsz=2; % bin size in mm
+binsz=3; % bin size in mm
+
 xldist=[0 70];
 doanglerange=0;
-onlygrids=true;
-onlydepths=false;
-onlystrips=false;
 sizeoffont=12;
 
-cm=cool(6); cm(1,:)=[0 0 0]; 
-%datadir='/Volumes/KLEEN_DRIVE/David/Bipolar project/baseline-high-density-data/'; %bandpassfiltered/';
-data_root = getenv("KLEEN_DATA");
-datadir = fullfile(data_root, 'bipolar_expedition', 'baseline-high-density-data');
-%cd([datadir])
-tag_spikes_path = fullfile(data_root, 'bipolar_expedition', 'taggedspikes_April2022.mat');
-load(tag_spikes_path);
-% load('/Users/jonathankleen/Desktop/taggedspikes_April2022.mat')
+
+
+
+cm=cool(6); cm(1,:)=[0 0 0];
+datadir=['/Volumes/KLEEN_DRIVE/bipolar_expedition/'];
+ptdatadir=[datadir 'baseline-high-density-data/'];
+u=dir(ptdatadir); uptbl={}; for i=1:length(u); uname=u(i).name; uptbl{i,1}=uname(1:end-28); end; uptbl(1:2)=[]; clear i u uname
+
+load([datadir '/taggedSpikes_April2022']);
 sfx=512;
 frxrange=[2 200]; %frequency range to examine
-  ft=[2 5 10 20 50 100 200]; ftl=cellstr(num2str(ft')); %frequency labels for plots
- 
-u=dir(datadir); uptbl={}; for i=1:length(u); uname=u(i).name; uptbl{i,1}=uname(1:end-28); end; uptbl(1:2)=[]; clear i u uname
+ft=[2 5 10 20 50 100 200]; ftl=cellstr(num2str(ft')); %frequency labels for plots
 
 p=find(strcmpi(pts,pt)); %patient number ID
 pblocks=strfind(uptbl,pts{p}); 
@@ -37,17 +35,23 @@ for i=1:length(pblocks);
 end
 ptbl=find(isbl); if ~isempty(ptbl); disp(['Loading ' pts{p} ' blocks...']); end
 
+
+
+
+
 % load all blocks for this patient and stack their baseline windows together
 d=[]; nwind=0;
 for b=1:length(ptbl); disp(uptbl{ptbl(b)})
     % load using using "_jk" versions of baseline windows, updated 2/2022
-    ptpath = fullfile(datadir, [uptbl{ptbl(b)} '_baselineWindows_fromraw.mat']);
+    ptpath = fullfile(ptdatadir, [uptbl{ptbl(b)} '_baselineWindows_fromraw.mat']);
     load(ptpath);
     % get rid of baseline windows containing spikes or artifact
     spksarti=hasspk | hasarti;
     nonspks_windows(:,spksarti)=[];
     hasstim(spksarti)=[]; %update indices for which windows overlap with stimuli/speech
     hasspeech(spksarti)=[]; 
+
+
     clear hasspkvec hasspk hasartivec hasarti spksarti % now clear spike- and artifact-related variables from workspace
 
     % convert to 3D matrix, combine all windows from consecutive blocks for each patient
@@ -59,36 +63,30 @@ for b=1:length(ptbl); disp(uptbl{ptbl(b)})
     clear nonspks_windows info
 end; clear b
 
+
+
+
 nch=size(d,2); 
 
 % load electrode component infor (grid/strip/depth and how many linear contacts they have in a row
 % [bpN,bpT]=xlsread(['/Users/davidcaldwell/code/high_density_ecog/AN_ElectrodeInfoTDT.xlsx'],pts{p});
+
 an_electrode_info_path = fullfile(data_root, 'bipolar_expedition', 'AN_ElectrodeInfoTDT.xlsx');
 [bpN,bpT]=xlsread(an_electrode_info_path, pts{p});
 
-
 [em,eleclabels,anatomy]=getelecs(pts{p},2);
 
-cm=cool(6); cm(1,:)=[0 0 0]; 
-% datadir='/Volumes/KLEEN_DRIVE/David/Bipolar project/baseline-high-density-data/bandpassfiltered/';
-datadir = fullfile(datadir, 'bandpassfiltered');
-%cd([datadir])
-%load('/Volumes/KLEEN_DRIVE/David/Bipolar project/taggedspikes_April2022.mat')
-sfx=512;
-frxrange=[2 200]; %frequency range to examine
-  ft=[2 5 10 20 50 100 200]; ftl=cellstr(num2str(ft')); %frequency labels for plots
-  
 
-% %% if wanting to only look at grids, strips, or depths, then nan the others
-% if onlygrids||onlystrips||onlydepths;
-%   for r=1:size(bpT,1)
-%     if any(strcmpi(bpT(r,2),{'grid','minigrid'})) && ~onlygrids  || ...
-%        strcmpi(bpT(r,2),'strip')              && ~onlystrips || ...
-%        strcmpi(bpT(r,2),'depth')              && ~onlydepths;
-%      d(:,bpN(r,1):bpN(r,2),:)=nan;
-%     end
-%   end; clear r
-% end
+
+
+
+
+
+
+
+
+
+
 
 %% look at either grids, strips, or depths, and nan the others
           for r=1:size(bpT,1)
@@ -119,6 +117,7 @@ okc=~badchI; clear x xbch
 
 windowstocheck=min([windowstocheck size(d,3)]);
 windowstocheck=1:windowstocheck; %convert to a vector of windows, 1:X
+
 
 %% ALL PAIRS (each vs. all others) analysis and example plot
  d=d(:,:,windowstocheck); clear Straces_allch; %free up RAM by getting rid of whatever won't be used (only using first ___ number of windows)

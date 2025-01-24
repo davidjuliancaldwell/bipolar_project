@@ -1,4 +1,4 @@
-function [mz_z,mz,mflat,bpdist ] = bin_zscore_trial(m,nchtocheck,Mbpdist,binsz,frx)
+function [mz_z,mz,mflat,bpdist ] = bin_zscore_trial(m,nchtocheck,Mbpdist,binsz,frx,none1sqrt2log3)
 
 mflat=[];
 bpdist=[];
@@ -28,16 +28,25 @@ end
 %         the bin containing the referential channels
 
 mz_z = [];
-% zscore the log transformed power according to frequency
-nfrx=length(frx);
-for i=1:nfrx; nns=squeeze(~isnan(nanmean(mz(i,:,:),2)));
-    mz_z(i,:,nns)=zscore(log(squeeze(mz(i,:,nns))),[],2);
-end;
-
 mz_zAvg = [];
 mz_Avg = squeeze(nanmean(mz,2));
-% zscore the log transformed power according to frequency
 nfrx=length(frx);
-for i=1:nfrx; nns=~isnan(mz_Avg(i,:));
-    mz_zAvg(i,nns)=zscore(log(mz_Avg(i,nns)));
+% zscore the log transformed power according to frequency
+for i=1:nfrx; nns=squeeze(~isnan(nanmean(mz(i,:,:),2)));
+    switch none1sqrt2log3
+        case 2
+            mz_z(i,:,nns)=zscore(sqrt(squeeze(mz(i,:,nns))),[],2);
+        case 3
+            mz_z(i,:,nns)=zscore( log(squeeze(mz(i,:,nns))),[],2);
+    end
 end;
+% zscore the log transformed power according to frequency
+for i=1:nfrx; nns=~isnan(mz_Avg(i,:));
+    switch none1sqrt2log3
+        case 2
+            mz_zAvg(i,nns)=zscore(sqrt(mz_Avg(i,nns)));
+        case 3
+            mz_zAvg(i,nns)=zscore( log(mz_Avg(i,nns)));
+    end
+end;
+
