@@ -220,10 +220,11 @@ switch none1sqrt2log3
         mblogm=squeeze(mean(log(mb),3)); 
         mARblogm=squeeze(mean(log(mARb),3)); 
          nfrx=length(frx);
-         mblogm_z=mblogm; mARblogm_z=mARblogm;
+         mb__m_z=mblogm; 
+         mARb__m_z=mARblogm;
          for i=1:nfrx; nns=~isnan(mblogm(i,:)); 
-             mblogm_z(i,nns)=zscore((mblogm(i,nns))); 
-             mARblogm_z(i,nns)=zscore((mARblogm(i,nns))); 
+             mb__m_z(i,nns)=zscore((mblogm(i,nns))); 
+             mARb__m_z(i,nns)=zscore((mARblogm(i,nns))); 
          end; 
 end
 
@@ -377,12 +378,15 @@ pcolorjk(binz(1:size(mb_m,2))-binsz,frx,mDiffcopy); shading flat; ylabel('Freque
  ylabel('Counts/bin','fontweight','normal'); axis tight; grid on; cb=colorbar; set(cb,'visible','off'); xlim(xldist); yline(10,'k-',.75); set(gca,'fontsize',sizeoffont); 
  title(pt)
  cd('~/Desktop/')
- saveas(gcf,[pt '.png'])
+ 
+ savepath = '~/Desktop/bipolar_results/';
+ if ~exist(savepath); mkdir(savepath); end
+ saveas(gcf,[savepath pt '.png'])
 
 %%
-figure('color','w','position',[104 374 381 431]); hold on
-c1=101;
-c2=102;
+figure('color','w','position',[187 49 381 272]); hold on
+c1=35; %using electrodes 35 and 52 for EC175 example
+c2=52;
 RA =squeeze(M      (c1,c1,:,:)); %channel A in referential
 RB =squeeze(M      (c2,c2,:,:)); %channel B in referential
 RAB=squeeze(M_averef(c1,c2,:,:)); %channe`ls A and B in referential averaged together
@@ -398,15 +402,15 @@ RBm =mean(RB,2);
 RABm=mean(RAB,2);
 Rbpm =mean(Rbp,2); 
 
-plot(frx,(RAm)  ,'--','linewidth',1,'color',[0 0 1]    ); 
-plot(frx,(RBm)  ,'--','linewidth',1,'color',[0 1 0]*.75)
+plot(frx,(RAm)  ,'--','linewidth',1,'color',[.5 .5 .5]    ); 
+plot(frx,(RBm)  ,'-.','linewidth',1,'color',[.5 .5 .5])
   %ribbons(frx,(RAB)',[0 1 1]*.75); hold on
-plot(frx,(RABm),'-' ,'linewidth',2,'color',[0 1 1]*.75)
+plot(frx,(RABm),'-' ,'linewidth',2,'color',[0 0 0])
   %ribbons(frx,(Rbp)',[0 0 0]*.75); hold on
-plot(frx,(Rbpm) ,'-' ,'linewidth',2,'color',[0 0 0]    )
+plot(frx,(Rbpm) ,'-' ,'linewidth',2,'color',[0 0 1]    )
 set(gca,'xscale','log','xtick',ft,'xticklabel',ftl,'xlim',fl); grid on
-title([num2str(c1) ' to ' num2str(c2) ' -- ' num2str(Mbp_distance(c1,c2)) 'mm'])
+legend({[num2str(35) ' Ref'],[num2str(52) ' Ref'],'Ref Ave','Bipolar'})
+title(['Electrode ' num2str(c1) ' vs. ' num2str(c2) ' (' num2str(round(Mbp_distance(c1,c2),1)) ' mm)'],'fontweight','normal')
  %cd('~/Desktop/')
- savepath = fullfile('~', 'Desktop', [pt '__ex.png']);
- saveas(gcf,savepath);
+ saveas(gcf,[savepath pt '__ex.png']);
 
