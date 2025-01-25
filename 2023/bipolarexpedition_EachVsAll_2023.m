@@ -70,8 +70,7 @@ nch=size(d,2);
 
 % load electrode component infor (grid/strip/depth and how many linear contacts they have in a row
 % [bpN,bpT]=xlsread(['/Users/davidcaldwell/code/high_density_ecog/AN_ElectrodeInfoTDT.xlsx'],pts{p});
-
-an_electrode_info_path = fullfile(data_root, 'bipolar_expedition', 'AN_ElectrodeInfoTDT.xlsx');
+an_electrode_info_path = fullfile(datadir, 'AN_ElectrodeInfoTDT.xlsx');
 [bpN,bpT]=xlsread(an_electrode_info_path, pts{p});
 
 [em,eleclabels,anatomy]=getelecs(pts{p},2);

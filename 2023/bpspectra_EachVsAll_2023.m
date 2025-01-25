@@ -13,8 +13,6 @@ function [M,Mrefave,Mbp_distance,frx,Mc,Mbp_angle]=bpspectra_EachVsAll_2023(d,sf
 %   Mbpdist is a confusion matrix of the euclidean distances for every bipolar pair (channel x channel)
 %   frx is the frequency index for M (3rd dimension)
 
-none1sqrt2log3=2; %using square root as default since the negative values from log give issues
-
 %just getting frequency index
  [~,frx]=spectrogramjk_chronuxmtfft(zeros(1,size(d,1)),sfx,frxrange,[.5,1],0); 
  
@@ -56,7 +54,7 @@ none1sqrt2log3=2; %using square root as default since the negative values from l
                  end
              end  
          end
-     end; toc; disp([num2str(round(w/nwindtocheck*100,1)) '% of windows'])
+     end; disp([num2str(round(w/nwindtocheck*100,1)) '% of windows done, elapsed time: ' num2str(toc)])
  end; clear c1 c2 trc
  % include referential signal power on the diagonal for storage/plotting
  for w = 1:nwindtocheck 
