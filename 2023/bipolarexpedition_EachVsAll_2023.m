@@ -23,7 +23,7 @@ datadir=['/Volumes/KLEEN_DRIVE/bipolar_expedition/'];
 ptdatadir=[datadir 'baseline-high-density-data/'];
 u=dir(ptdatadir); uptbl={}; for i=1:length(u); uname=u(i).name; uptbl{i,1}=uname(1:end-28); end; uptbl(1:2)=[]; clear i u uname
 
-load([datadir '/taggedSpikes_April2022']);
+load([datadir '/taggedspikes_April2022']);
 sfx=512;
 frxrange=[2 200]; %frequency range to examine
 ft=[2 5 10 20 50 100 200]; ftl=cellstr(num2str(ft')); %frequency labels for plots
@@ -122,7 +122,7 @@ windowstocheck=1:windowstocheck; %convert to a vector of windows, 1:X
 %% ALL PAIRS (each vs. all others) analysis and example plot
  d=d(:,:,windowstocheck); clear Straces_allch; %free up RAM by getting rid of whatever won't be used (only using first ___ number of windows)
                  % ***opportunity here to select speech or stim windows
- [M,M_averef,Mbp_distance,frx,~,Mbp_angle]=bpspectra_EachVsAll_2023(d,sfx,frxrange,em,nchtocheck);
+ [M,M_averef,Mbp_distance,frx,~,Mbp_angle]=bpspectra_EachVsAll_2023(d,sfx,frxrange,em,nchtocheck,none1sqrt2log3);
      % M is bipolarchannel1 X bipolarchannel2 X frx X 1secwindow
  nfrx=length(frx);
   

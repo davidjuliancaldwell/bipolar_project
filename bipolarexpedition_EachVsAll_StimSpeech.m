@@ -19,11 +19,12 @@ savePlots = true;
 folderFigures = '~/Desktop/bipolar_results/'; if ~exist(folderFigures); mkdir(folderFigures); end
 
 cm=cool(6); cm(1,:)=[0 0 0];
-datadir=['/Volumes/KLEEN_DRIVE/bipolar_expedition/'];
+% datadir=['/Volumes/KLEEN_DRIVE/bipolar_expedition/'];
+datadir=['/data/bipolar_expedition/'];
 ptdatadir=[datadir 'baseline-high-density-data/'];
 u=dir(ptdatadir); uptbl={}; for i=1:length(u); uname=u(i).name; uptbl{i,1}=uname(1:end-28); end; uptbl(1:2)=[]; clear i u uname
 
-load([datadir '/taggedSpikes_April2022']);
+load([datadir '/taggedspikes_April2022']);
 sfx=512;
 frxrange=[2 200]; %frequency range to examine
 ft=[2 5 10 20 50 100 200]; ftl=cellstr(num2str(ft')); %frequency labels for plots
@@ -132,9 +133,9 @@ dSpeech =           dSpeech         (:,:,1:min([size(d,3) size(dSpeech,3)]));
 dNoSpeechNoStim =   dNoSpeechNoStim (:,:,1:min([size(d,3) size(dNoSpeechNoStim,3)]));
 dStim =             dStim           (:,:,1:min([size(d,3) size(dStim,3)]));
 
-[mSpeech        ,~,~]=bpspectra_EachVsAll(dSpeech        ,sfx,frxrange,em,nchtocheck);
-[mNoSpeechNoStim,~,~]=bpspectra_EachVsAll(dNoSpeechNoStim,sfx,frxrange,em,nchtocheck);
-[mStim          ,~,~]=bpspectra_EachVsAll(dStim          ,sfx,frxrange,em,nchtocheck);
+disp('Speech windows'); [mSpeech        ,~,~]=bpspectra_EachVsAll(dSpeech        ,sfx,frxrange,em,nchtocheck);
+disp('NoSpeechNoStim windows'); [mNoSpeechNoStim,~,~]=bpspectra_EachVsAll(dNoSpeechNoStim,sfx,frxrange,em,nchtocheck);
+disp('Stim windows'); [mStim          ,~,~]=bpspectra_EachVsAll(dStim          ,sfx,frxrange,em,nchtocheck);
 
 %mSpeech = M(:,:,:,(hasSpeechTotal & ~hasStimTotal));
 %mNoSpeechNoStim = M(:,:,:,(~hasSpeechTotal & ~hasStimTotal));

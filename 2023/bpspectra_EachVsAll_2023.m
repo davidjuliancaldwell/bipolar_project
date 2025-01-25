@@ -1,4 +1,4 @@
-function [M,Mrefave,Mbp_distance,frx,Mc,Mbp_angle]=bpspectra_EachVsAll_2023(d,sfx,frxrange,em,nchtocheck)
+function [M,Mrefave,Mbp_distance,frx,Mc,Mbp_angle]=bpspectra_EachVsAll_2023(d,sfx,frxrange,em,nchtocheck,none1sqrt2log3)
 % for each window in d (samples x electrodes x windows), take channel c1
 % minus channel c2 and computes spectrum on that bipolar signal, placing
 % into a confusion matrix. Also does referential spectra (on the diagonal).
@@ -13,7 +13,7 @@ function [M,Mrefave,Mbp_distance,frx,Mc,Mbp_angle]=bpspectra_EachVsAll_2023(d,sf
 %   Mbpdist is a confusion matrix of the euclidean distances for every bipolar pair (channel x channel)
 %   frx is the frequency index for M (3rd dimension)
 
-sqrt2log3=2; %using square root as default since the negative values from log give issues
+none1sqrt2log3=2; %using square root as default since the negative values from log give issues
 
 %just getting frequency index
  [~,frx]=spectrogramjk_chronuxmtfft(zeros(1,size(d,1)),sfx,frxrange,[.5,1],0); 
@@ -41,11 +41,15 @@ sqrt2log3=2; %using square root as default since the negative values from log gi
                  % take mean of referential spectra from channel 1 and
                  % channel 2 while in log or square root form, then
                  % transform back using exponent or square, respectively
-                 if     sqrt2log3==2
+                 if     none1sqrt2log3==1
+                   Mrefave(c1,c2,:,w)=...
+                          (mean([    (spectrogramjk_chronuxmtfft(sq(d(:,c1,w)),sfx,frxrange,[.5,1],0))...
+                                     (spectrogramjk_chronuxmtfft(sq(d(:,c2,w)),sfx,frxrange,[.5,1],0));],   2));
+                 elseif     none1sqrt2log3==2
                    Mrefave(c1,c2,:,w)=...
                           (mean([sqrt(spectrogramjk_chronuxmtfft(sq(d(:,c1,w)),sfx,frxrange,[.5,1],0))...
                                  sqrt(spectrogramjk_chronuxmtfft(sq(d(:,c2,w)),sfx,frxrange,[.5,1],0));],   2)).^2;
-                 elseif sqrt2log3==3
+                 elseif none1sqrt2log3==3
                    Mrefave(c1,c2,:,w)=...
                        exp(mean([ log(spectrogramjk_chronuxmtfft(sq(d(:,c1,w)),sfx,frxrange,[.5,1],0))...
                                   log(spectrogramjk_chronuxmtfft(sq(d(:,c2,w)),sfx,frxrange,[.5,1],0));],   2));

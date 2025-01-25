@@ -24,7 +24,7 @@ function [M,Mbpdist,frx]=bpspectra_EachVsAll(d,sfx,frxrange,em,nchtocheck)
                  M(c1,c2,:,w)=spectrogramjk_chronuxmtfft(trc,sfx,frxrange,[.5,1],0);
              end  
          end
-     end; toc
+     end; disp([num2str(round(w/nwindtocheck*100,1)) '% done, elapsed time: ' num2str(toc)])
  end; clear c1 c2 trc
  % include referential signal power on the diagonal for storage/plotting
  for w = 1:nwindtocheck 
