@@ -5,6 +5,7 @@ pts={'EC133','EC175','EC181','EC183','EC186','EC187','EC196','EC219','220','EC22
 mDiff=[];  mb_m=[];  mARb_m=[];
 for p=[1 2     4 5 6 7 8     10 11]; 
     [mDiff(p,:,:),mb_m(p,:,:),mARb_m(p,:,:)]=bipolarexpedition_EachVsAll_2023(pts{p},256);
+    save('~/Desktop/bipolar_results/loop_results');
 end
 
 %%

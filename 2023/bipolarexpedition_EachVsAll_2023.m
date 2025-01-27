@@ -7,11 +7,11 @@ if ~exist('pt','var')||isempty(pt); pt='EC175'; end %pt='EC175'; % EC175 and EC1
 if ~exist('nchtocheck','var')||isempty(nchtocheck); nchtocheck=128*2; end
 if ~exist('windowstocheck','var')||isempty(windowstocheck); windowstocheck=250; end %each window is 1 second of data (non-overlapping)
 
-none1sqrt2log3=3; % 1: no transform, 2: square root, 3: log
+none1sqrt2log3=2; % 1: no transform, 2: square root, 3: log
 g1s2d3=1; % use either grids (1) or strips (2) or depths (3) but not the others
-binsz=3; % bin size in mm
+binsz=2; % bin size in mm
 
-xldist=[0 70];
+xldist=[0 60];
 doanglerange=0;
 sizeoffont=12;
 
@@ -205,8 +205,17 @@ binz(1)=[]; %remove negative 1, only there to get referential channels (distance
 
 % transform power before calculating 
 switch none1sqrt2log3
+  case 1
+        mb__m  =squeeze(mean(    (mb),3)); 
+        mARb__m=squeeze(mean(    (mARb),3)); 
+         nfrx=length(frx);
+         mb__m_z=mb__m; mARb__m_z=mARb__m;
+         for i=1:nfrx; nns=~isnan(mb__m(i,:)); 
+             mb__m_z(i,nns)=zscore((mb__m(i,nns))); 
+             mARb__m_z(i,nns)=zscore((mARb__m(i,nns))); 
+         end; 
   case 2
-        mb__m=squeeze(mean(sqrt(mb),3)); 
+        mb__m  =squeeze(mean(sqrt(mb),3)); 
         mARb__m=squeeze(mean(sqrt(mARb),3)); 
          nfrx=length(frx);
          mb__m_z=mb__m; mARb__m_z=mARb__m;
@@ -215,8 +224,8 @@ switch none1sqrt2log3
              mARb__m_z(i,nns)=zscore((mARb__m(i,nns))); 
          end; 
   case 3
-        mblogm=squeeze(mean(log(mb),3)); 
-        mARblogm=squeeze(mean(log(mARb),3)); 
+        mblogm  =squeeze(mean( log(mb),3)); 
+        mARblogm=squeeze(mean( log(mARb),3)); 
          nfrx=length(frx);
          mb__m_z=mblogm; 
          mARb__m_z=mARblogm;
@@ -299,19 +308,22 @@ end
 
 % transform power before calculating perecent change
 mb_=mb; mARb_=mARb; % make a copy... then transform the copy
-switch none1sqrt2log3
+switch 1 %defaulting to raw for this, seems most generalizable
     case 1
         txtyp='raw'; % no transform, power in raw form
         mb_(~isnan(mb_))      =    (mb_(~isnan(mb_)));
         mARb_(~isnan(mARb_))  =    (mARb_(~isnan(mARb_)));
+        caxdiff=[-50 150]; cmdiff=cmocean('balance',30); cmdiff(1:10,:)=[];
     case 2
         txtyp='square root'; % square root transform
         mb_(~isnan(mb_))      =sqrt(mb_(~isnan(mb_)));
         mARb_(~isnan(mARb_))  =sqrt(mARb_(~isnan(mARb_)));
-    case 3
+        caxdiff=[-30 60]; cmdiff=cmocean('balance',24); cmdiff(1:6,:)=[];
+    case 3; mb_=mb_+1; mARb_=mARb_+1;
         txtyp='natural log'; % log transform --> problematic because taking % change of certain small negative values creates extreme values
         mb_(~isnan(mb_))      =log (mb_(~isnan(mb_)));
         mARb_(~isnan(mARb_))  =log (mARb_(~isnan(mARb_)));
+        caxdiff=[-50 150]; cmdiff=cmocean('balance',30); cmdiff(1:10,:)=[];
 end
 
 %     % zscore acrosss freqs and windows for each distance bin
@@ -326,7 +338,7 @@ psig=0.05;
 
 xl=[binsz*2 binz(end)]; fl=frx([1 end]);
 
-figure('color','w','position',[315 1 1486 1046]); colormap(jet); clear cax; %
+figure('color','w','position',[27 1 1018 865]); colormap(jet); clear cax; %
  subplot(3,2,1)
  pcolorjk(binz(1:size(mb_m,2))-binsz,frx,mARb_m); shading flat; ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',sizeoffont); colorbar; 
  text(max(xlim)+diff(xlim)/4,mean(ylim),'(power)','fontsize',12,'rotation',90,'horizontalalignment','center')
@@ -341,17 +353,18 @@ figure('color','w','position',[315 1 1486 1046]); colormap(jet); clear cax; %
  set(gca,'ydir','normal','yscale','log','ytick',ft,'yticklabel',ftl,'xlim',xl,'ylim',fl);
  cax(2,:)=clim;
  cax=(([min(cax(:,1),[],1) max(cax(:,2),[],1)])); % get extreme min and max of the two conditions
- subplot(3,2,1);   clim(cax); xlim(xldist); yline(10,'k-',.75); 
- subplot(3,2,2);   clim(cax); xlim(xldist); yline(10,'k-',.75); 
+ subplot(3,2,1);   clim(cax); xlim(xldist); %ylinejk(10,'k-',.75); 
+ subplot(3,2,2);   clim(cax); xlim(xldist); %ylinejk(10,'k-',.75); 
  
  subplot(3,2,3)
  mDiff=((mb_m-mARb_m)./mARb_m)*100; difftitle='% Change (Referential minus Bipolar)';
  pcolorjk(binz(1:size(mb_m,2))-binsz,frx,mDiff); shading flat; ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',sizeoffont); colorbar; 
  title([difftitle ', ' txtyp],'fontweight','normal')
- set(gca,'ydir','normal','yscale','log','ytick',ft,'yticklabel',ftl,'xlim',xl,'ylim',fl); xlim(xldist); yline(10,'k-',.75); 
-    caxdiff=clim; caxdiff=max([ abs(clim)])*[-1 1]; 
-    if caxdiff(2)<100; caxdiff=[-1 1]*100; end
-    clim(caxdiff); colormap(gca,cmocean('balance',40))
+ set(gca,'ydir','normal','yscale','log','ytick',ft,'yticklabel',ftl,'xlim',xl,'ylim',fl); xlim(xldist); %ylinejk(10,'k-',.75); 
+    %caxdiff=clim; caxdiff=max([ abs(clim)])*[-1 1]; 
+    %if caxdiff(2)<100; caxdiff=[-1 1]*100; end
+    %caxdiff=[-60 60];
+    clim(caxdiff); colormap(gca,cmdiff)
     %hold on; contour(binz(1:size(mb_m,2))-binsz,frx,mDiff,'k','LineWidth',0.5);
     
 subplot(3,2,4)
@@ -367,13 +380,13 @@ mDiffcopy(~msig)=nan;
 pcolorjk(binz(1:size(mb_m,2))-binsz,frx,mDiffcopy); shading flat; ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',sizeoffont); colorbar; 
  text(max(xlim)+diff(xlim)/4,mean(ylim),'% diff','fontsize',12,'rotation',90,'horizontalalignment','center')
  title([difftitle ', ' txtyp ', p<' num2str(psig)],'fontweight','normal')
- set(gca,'ydir','normal','yscale','log','ytick',ft,'yticklabel',ftl,'xlim',xl,'ylim',fl); xlim(xldist); yline(10,'k-',.75); 
-    clim(caxdiff); colormap(gca,cmocean('balance',40))
+ set(gca,'ydir','normal','yscale','log','ytick',ft,'yticklabel',ftl,'xlim',xl,'ylim',fl); xlim(xldist); %ylinejk(10,'k-',.75); 
+    clim(caxdiff); colormap(gca,cmdiff)
     %hold on; contour(binz(1:size(mb_m,2))-binsz,frx,mDiff,'k','LineWidth',0.5);
 
 % Histogram of number of pairs per bin
  subplot(11,2,21); histogram(make1d(Mbp_distance),[0.001 binsz:binsz:85],'facecolor',.5*[1 1 1]); set(gca,'fontsize',12); xlabel('Binned bipolar distance (mm)','fontsize',sizeoffont); 
- ylabel('Counts/bin','fontweight','normal'); axis tight; grid on; cb=colorbar; set(cb,'visible','off'); xlim(xldist); yline(10,'k-',.75); set(gca,'fontsize',sizeoffont); 
+ ylabel('Counts/bin','fontweight','normal'); axis tight; grid on; cb=colorbar; set(cb,'visible','off'); xlim(xldist); set(gca,'fontsize',sizeoffont); %ylinejk(10,'k-',.75); 
  title(pt)
  cd('~/Desktop/')
  
