@@ -14,6 +14,7 @@ bipolarexpedition_Linear_2025 % View documentation with saving/plotting
 fig3_call; % View documentation with saving/plotting
 
 %Fig 4, Relative Change from Referential
+pt = 'EC175'; % or 183
 EachVsAll_cleaned2025(pt);
 
 
