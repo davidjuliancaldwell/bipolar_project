@@ -88,7 +88,7 @@ function plot_dists(elec_type, plotposition)
     color_map = containers.Map(color_keys, mat2cell(color_values, ones(1, length(color_keys)), 3));
 
     if g1s2d3 == 2
-        load('strips_distances.mat');
+        load('strips_distances.mat'); % From get_elecs, all distance
         sel = [1, 2, 4, 5, 6, 7, 8, 10, 11];
         pts = pts_all(sel);
         disp('Creating strips stack...');

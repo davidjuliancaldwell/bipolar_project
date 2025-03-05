@@ -1,7 +1,24 @@
 % BIPOLAR PAIR ANALYSIS: LINEAR
+% Display linear bipolar analysis plots 
 
-g1s2d3=1; % use either grids (1) or strips (2) or depths (3) but not the others
+function bipolarexpedition_Linear_2025
 
+%linear_analysis(1); Uncomment to create/save data for plotting
+plot_linear;
+
+end
+
+%% Section 1: linear_analysis
+% Run linear analysis on grids, strips, or depths individually, and save 
+% the spectral data per distance into separate arrays
+
+function linear_analysis(component_num) 
+% component_num - to use either grids (1) or strips (2) or depths (3) but not the others
+
+save_data = false;
+save_data_path = '';
+g1s2d3=component_num; 
+extra_plots = false;
 % how many bipolar steps discretized distances to loop through
 maxbpd=5;
 
@@ -158,7 +175,7 @@ for p=find(okpt) %[4 12:23]
         
         %% Calculate spectra and put into matrices (bipolarDistance X patient X frequency) aggregated for each patient 
       if any(okc)
-        [s,frx]=bpspectra_Linear_2023(d,sfx,frxrange,okc); %important: natural log is applied right before output
+        [s,frx]=bpspectra_Linear_2025(d,sfx,frxrange,okc); %important: natural log is applied right before output
         
         % transform power before analyzing
         none1sqrt2log3=2; % 1: no transform, 2: square root, 3: log
@@ -207,7 +224,7 @@ for p=find(okpt) %[4 12:23]
         chtoplot=49:64; %example channels [EC143-49:64, EC175-]
         windowtoplot=11; %example window
         ts=1/sfx:1/sfx:1; %timestamps for 1-sec window
-        eegplotbytime2021(d(:,chtoplot,windowtoplot)',sfx,300,[],0,[.3 .3 .3],1);
+        eegplotbytime2021(d(:,chtoplot,windowtoplot)',sfx,100,[],0,[.3 .3 .3],1);
     %             for c=1:length(chtoplot); plot(ts,-c*1000+d(:,chtoplot(c),windowtoplot),'color',[0 .6 .6],'linewidth',1); end
         if ~exist('yl','var'); yl=ylim; end; ylim(yl);
         ylim(yl+(bpd/2+.5))
@@ -258,7 +275,7 @@ TRSD(:,~okpt,:)=nan;
 TRSE(:,~okpt,:)=nan; 
 % TRbpdist(:,~okpt)=nan;  %********
 
-%% plots aggregated across patients
+% plots aggregated across patients
 figure; set(gcf,'color','w','position',[88 122 494 624]); %,'position',[1055 216 1217 826]
 rebase=1;
 rebase_fl=[2 10]; %frequency limits for rebasing to referential signal
@@ -307,13 +324,161 @@ caxis(caxisrange);
 cb=colorbar; 
 cb.Ticks=[0.5 bpd_mm(2:end)-.5]; 
 cb.TickLabels=[{'Referential'} ; cellstr(num2str(bpd_mm(2:end)'))];
-1
-% %% Plotting individual sections of full frequency range separately
-% figure('color','w','position',[1000 517 354 821]); colormap(cmocean('thermal')); %x=4*(0:maxbpd);
-% sp(4,1,4); f=frx>0&frx<=20; imagesc(bpd_mm,frx(f),sq(nanmean(TRM(:,:,f),2))'); set(gca,'ydir','normal','xtick',bpd_mm,'xticklabel',cellstr(num2str(bpd_mm'))'); xlabel('Bipolar distance (mm)'); ylabel('Frequency (Hz)')
-% sp(4,1,3); f=frx>20&frx<=50; imagesc(bpd_mm,frx(f),sq(nanmean(TRM(:,:,f),2))'); set(gca,'ydir','normal','xtick',[]);
-% sp(4,1,2); f=frx>50&frx<=100; imagesc(bpd_mm,frx(f),sq(nanmean(TRM(:,:,f),2))'); set(gca,'ydir','normal','xtick',[]);
-% sp(4,1,1); f=frx>100&frx<=170; imagesc(bpd_mm,frx(f),sq(nanmean(TRM(:,:,f),2))'); set(gca,'ydir','normal','xtick',[]); title('Average across patients')
+
+
+end
+
+%% Section 2
+
+%Display bipolar linear figure
+
+function plot_linear 
+
+fig = figure(2); % figure 4
+set(fig, 'Position', [100, 100, 1200, 900], 'Color', 'w');
+load('eegbytime_dk.mat'); %Contains example of linear bipolar window data
+
+brainplot = subplot('Position', [0.15, 0.63, 0.33, 0.33]);
+pt = 'EC133';
+elecsbrain(pt,0,[1:128],[0.7 0.7 0.7],'l',0,5.5,2); alpha 1; litebrain('l',.2);
+elecsbrain(pt,0,[49:64],[1 1 0], 0, 0, 5.5, 2);
+title('Pt. 1');
+
+timepos = {[0.03, 0.515, 0.09, 0.11],
+           [0.134, 0.512, 0.09, 0.11],
+           [0.238, 0.507, 0.09, 0.11],
+           [0.342, 0.502, 0.09, 0.11],
+           [0.446, 0.497, 0.09, 0.11],
+           [0.55, 0.492, 0.09, 0.11]};
+
+x = 1:6;
+y = ones(1,6);
+
+cmap = [1 1 0];
+
+timetitles = {"Referential (16 ch)", "4 mm bipolar (15 ch)", "8 mm bipolar (14 ch)", "12 mm bipolar (13 ch)", "16 mm bipolar (12 ch)", "20 mm bipolar (11 ch)"};
+lw = 0.65;
+%%
+%fig = figure(6); % figure 4
+%set(fig, 'Position', [100, 100, 1300, 900], 'Color', 'w');
+
+for i=1:length(timepos)
+    subplot('Position', timepos{i});
+    eegplotbytime2021(dkoutput{i},512,225,[],0,[.3 .3 .3],lw);
+    axis off; box off;
+    %xlabel(timetitles{i});
+    %title(timetitles{i}, 'FontWeight','normal');
+end
+
+caxisrange=[0 20];
+cm=cool(17); 
+cm=[0 0 0;1 1 1;1 1 1;cm];
+frxrange=[2 200]; %frequency range to examine
+ft=[2 5 10 20 50 100 200]; %frequency tick marks for plots
+frx = 2:2:200;
+ftl=cellstr(num2str(ft'));
+
+legendHandles = [];
+
+subgrids = subplot('Position', [0.06, 0.05, 0.25, 0.38]);
+load('dk_grid_lin.mat');
+grid_dist = [1, 4, 8, 12, 16, 20];
+for i = 1:length(grid_dist)
+    hold on;
+    h = plot(frx, dk_lin{i}, 'Color', cm(grid_dist(i),:), 'LineWidth', 6)
+    h.Color(4) = 0.3;
+    h2 = plot(frx, dk_lin{i}, 'Color', cm(grid_dist(i),:), 'LineWidth', 2.25);
+    
+    %h2 = ribbons(frx, dk_lin{i}',cm(grid_dist(i),:), .3, 'sem', 0, 0);
+    %ribbons(frx,dk_spec{j},cm(grid_dist(j),:),.3,'sem',0,0);
+
+    legendHandles = [legendHandles, h2];
+end
+grid on;
+set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
+ax = gca;
+ax.GridAlpha = 0.3;
+ax.MinorGridAlpha = 0.5;
+xlabel('Frequency (Hz)')
+ylabel('ln(Power), rebased');
+ylim([-0.2 1.61]);
+title('Grid Electrodes');
+legend(legendHandles, {'Ref', '4 mm', '8 mm', '12 mm', '16 mm', '20 mm'});
+hold off;
+
+legendHandles = [];
+subdepths = subplot('Position', [0.365, 0.05, 0.25, 0.38]);
+load('dk_depth_lin.mat');
+grid_dist = [1, 5, 10, 15, 20];
+for i = 1:length(grid_dist)
+    hold on;
+    h = plot(frx, dk_lin{i}, 'Color', cm(grid_dist(i),:), 'LineWidth', 6)
+    h.Color(4) = 0.3;
+    h2 = plot(frx, dk_lin{i}, 'Color', cm(grid_dist(i),:), 'LineWidth', 2.25);
+    legendHandles = [legendHandles, h2];
+end
+grid on;
+set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
+ax = gca;
+ax.GridAlpha = 0.3;
+ax.MinorGridAlpha = 0.5;
+xlabel('Frequency (Hz)')
+ylabel('ln(Power), rebased');
+ylim([-0.2 1.61]);
+title('Depth Electrodes');
+legend(legendHandles, {'Ref', '5 mm', '10 mm', '15 mm', '20 mm'});
+hold off;
+
+legendHandles = [];
+substrips = subplot('Position', [0.67, 0.05, 0.31, 0.38]);
+load('dk_strip_lin.mat');
+grid_dist = [1, 10, 20];
+for i = 1:length(grid_dist)
+    hold on;
+    h = plot(frx, dk_lin{i}, 'Color', cm(grid_dist(i),:), 'LineWidth', 6)
+    h.Color(4) = 0.3;
+    h2 = plot(frx, dk_lin{i}, 'Color', cm(grid_dist(i),:), 'LineWidth', 2.25);
+    legendHandles = [legendHandles, h2];
+end
+grid on;
+set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
+ax = gca;
+ax.GridAlpha = 0.3;
+ax.MinorGridAlpha = 0.5;
+xlabel('Frequency (Hz)')
+ylabel('ln(Power), rebased');
+ylim([-0.2 1.61]);
+title('Strip Electrodes');
+legend(legendHandles, {'Ref', '10 mm', '20 mm'});
+hold off;
+
+colormap(gca,cm); 
+caxis(caxisrange); 
+cb=colorbar; 
+grid_dist = [1, 4, 8, 12, 16, 20];
+cb.Ticks=[0.5 grid_dist(2:end)-.5]; 
+cb.TickLabels=[{'Ref.'}, {'4'}, {'8'}, {'12'}, {'16'}, {'20'}];
+ylabel(cb,'Distance (mm)')
+
+%%%
+grid_dist = [1, 4, 8, 12, 16, 20];
+load('spec_dk.mat');
+subindividual = subplot('Position', [0.67 0.54 0.25 0.4]);
+for j = 1:length(dk_spec)
+    hold on;
+    ribbons(frx,dk_spec{j},cm(grid_dist(j),:),.3,'sem',0,0);
+end
+grid on;
+set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
+ax = gca;
+ax.GridAlpha = 0.3;
+ax.MinorGridAlpha = 0.5;
+xlabel('Frequency (Hz)');
+title('Pt.1 1-second Window, Chs 49-64')
+ylabel('ln(power)');
+
+end
+
 
 
 
