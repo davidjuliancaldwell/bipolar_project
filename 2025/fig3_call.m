@@ -1,6 +1,6 @@
 
 function fig3_call
-
+sizeoffont=10;
 fig = figure(3);
 set(fig, 'Position', [100, 100, 1400, 900]);
 set(gcf, 'Color', 'white');

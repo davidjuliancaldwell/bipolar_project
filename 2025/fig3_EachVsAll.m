@@ -125,7 +125,7 @@ windowstocheck=1:windowstocheck; %convert to a vector of windows, 1:X
 %% ALL PAIRS (each vs. all others) analysis and example plot
  d=d(:,:,windowstocheck); clear Straces_allch; %free up RAM by getting rid of whatever won't be used (only using first ___ number of windows)
                  % ***opportunity here to select speech or stim windows
- [M,M_averef,Mbp_distance,frx,~,Mbp_angle]=bpspectra_EachVsAll_2025(d,sfx,frxrange,em,nchtocheck);
+ [M,M_averef,Mbp_distance,frx,~,Mbp_angle]=bpspectra_EachVsAll_2025(d,sfx,frxrange,em,nchtocheck,none1sqrt2log3);
      % M is bipolarchannel1 X bipolarchannel2 X frx X 1secwindow
  nfrx=length(frx);
  

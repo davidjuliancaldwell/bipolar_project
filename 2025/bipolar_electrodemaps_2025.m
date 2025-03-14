@@ -5,7 +5,7 @@
 %%
 
 function bipolar_electrodemaps_2025
-
+cd /Volumes/KLEEN_DRIVE/bipolar_expedition/
 fig = figure(1);
 set(fig, 'Position', [100, 100, 1400, 900]);
 set(gcf, 'Color', 'white');
