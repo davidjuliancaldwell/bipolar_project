@@ -1,5 +1,5 @@
 
-function [pt, binz, toplot, frx, binsz, Mbp_distance, cm_distance]=fig3_EachVsAll(pt,nchtocheck,windowstocheck)
+function [pt, binz, toplot, frx, binsz, Mbp_distance, cm_distance]=fig3_EachVsAll(pt,nchtocheck,windowstocheck,none1sqrt2log3)
 
 % BIPOLAR PAIR ANALYSIS: EACH VS. ALL
 % see loopbipolarexpedition.m to loop across patients and analyze
@@ -8,7 +8,7 @@ function [pt, binz, toplot, frx, binsz, Mbp_distance, cm_distance]=fig3_EachVsAl
 if ~exist('nchtocheck','var')||isempty(nchtocheck); nchtocheck=128*2; end
 if ~exist('windowstocheck','var')||isempty(windowstocheck); windowstocheck=250; end %each window is 1 second of data (non-overlapping)
 
-none1sqrt2log3=2; % 1: no transform, 2: square root, 3: log
+% none1sqrt2log3=2; % 1: no transform, 2: square root, 3: log
 g1s2d3=1; % use either grids (1) or strips (2) or depths (3) but not the others
 binsz=2; % bin size in mm
 xldist=[0 60];
@@ -230,7 +230,7 @@ end
 
  figure('color','w','position',[[54 223 1907 1102]]); colormap(parula);
  
- % plot log-transformed version
+ % plot transformed version
  toplot=mean((mb__m_z),3);  % mb or mb_z
  cm_distance=flipud(cmocean('deep',1+ceil(max(max(Mbp_distance)))));
 
