@@ -3,7 +3,7 @@
 
 function bipolarexpedition_Linear_2025
 
-%linear_analysis(1); Uncomment to create/save data for plotting
+linear_analysis(1); Uncomment to create/save data for plotting
 plot_linear;
 
 end
@@ -32,9 +32,9 @@ bpd_mm=bpd_mm*(0:maxbpd); %bipolar distances to be evaluated, in mm
 caxisrange=[0 20];
 cm=cool(17); 
 cm=[0 0 0;1 1 1;1 1 1;cm]; %first entry black for referential, rest allows color-coding of physical distance
-data_root = getenv("KLEEN_DATA");
-if ~exist('data_root','dir'); data_root='/Volumes/KLEEN_DRIVE/'; end
-if ~exist('data_root','dir'); data_root='/data/'; end
+% data_root = getenv("KLEEN_DATA");
+if ~exist('data_root'); data_root='/Volumes/KLEEN_DRIVE/'; end
+if ~exist('data_root'); data_root='/data/'; end
 datadir = fullfile(data_root, 'bipolar_expedition');
 tag_spikes_path = fullfile(datadir, 'taggedspikes_April2022.mat');
 load(tag_spikes_path);
@@ -175,7 +175,7 @@ for p=find(okpt) %[4 12:23]
         
         %% Calculate spectra and put into matrices (bipolarDistance X patient X frequency) aggregated for each patient 
       if any(okc)
-        [s,frx]=bpspectra_Linear_2025(d,sfx,frxrange,okc); %important: natural log is applied right before output
+        [s,frx]=bpspectra_Linear_2025(d,sfx,frxrange,okc);
         
         % transform power before analyzing
         none1sqrt2log3=2; % 1: no transform, 2: square root, 3: log
@@ -200,7 +200,7 @@ for p=find(okpt) %[4 12:23]
         hasmat(bpd+1,p)=1;
         Sokc{bpd+1,p}=okc; 
 
-        figure(1); sp(5,5,p); hold on; %each patient in their own plot
+        figure(2); set(gcf,'position',[372 1 1297 865],'color','w'); sp(5,5,p); hold on; %each patient in their own plot
          ribbons(frx,trm(okc,:),cm(max([1 bpd_mm(bpd+1)]),:),.5,'sem',0,0); set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
          grid on; title(pts{p}); drawnow; 
          if p==4; 
@@ -276,7 +276,7 @@ TRSE(:,~okpt,:)=nan;
 % TRbpdist(:,~okpt)=nan;  %********
 
 % plots aggregated across patients
-figure; set(gcf,'color','w','position',[88 122 494 624]); %,'position',[1055 216 1217 826]
+figure(3); set(gcf,'color','w','position',[88 122 494 624]); %,'position',[1055 216 1217 826]
 rebase=1;
 rebase_fl=[2 10]; %frequency limits for rebasing to referential signal
 p_rebased=nan(length(pts),1);

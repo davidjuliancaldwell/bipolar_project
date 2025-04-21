@@ -9,9 +9,9 @@ pts_ref = {'Pt. 2', 'Pt. 4'};
 xldist = [0 60];
 ft=[2 5 10 20 50 100 200];
 ftl=cellstr(num2str(ft'));
-none1sqrt2log3=2;
-    Txform={'raw','sqrt','ln'};
-
+Txform={'raw','sqrt','ln'};
+if ~exist('none1sqrt2log3','var'); none1sqrt2log3=2; msgbox(['FYI, defaulting to ' Txform{none1sqrt2log3} ', use as input next time']); end
+    
 [pt, binz, toplot, frx, binsz, Mbp_distance, ~] = fig3_EachVsAll(pts{1},[],[],none1sqrt2log3);
 
 subplot1 = subplot('Position', [0.415, 0.75, 0.18, 0.18]);

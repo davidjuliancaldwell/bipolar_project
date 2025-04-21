@@ -8,6 +8,8 @@ function [mDiff, mb_m, mARb_m,Mbp_distance] = EachVsAll_cleaned2025(pt)
 pt='EC175'; %pt='EC175'; % EC175 and EC183 both have intact 16x16 square grids (channel #s 1:256)
 windowstocheck=250; %each window is 1 second of data (non-overlapping)
 g1s2d3=1; % use either grids (1) or strips (2) or depths (3) but not the others
+% none1sqrt2log3 values for the pre-calculation transform: 1: no transform, 2: square root, 3: natural log
+    if ~exist('none1sqrt2log3','var'); none1sqrt2log3=2; msgbox(['FYI, defaulting to ' Txform{none1sqrt2log3} ', use as input next time']); end
 doanglerange=0;
 recordings = [];
 
@@ -288,7 +290,10 @@ end
 % will also add a line at 10mm for visualization of this common clinical inter-electrode distance
 
 % transform power before calculating perecent change
-none1sqrt2log3=3; % 1: no transform, 2: square root, 3: log
+% but first, implement a transform, 
+%       keep in mind averaging and discerning % change are infleunced 
+%       strongly by which transform is used
+% none1sqrt2log3 values: 1: no transform, 2: square root, 3: natural log
 mb_=mb; mARb_=mARb; % make a copy... then transform the copy
 if none1sqrt2log3==1;     txtyp='raw'; % no transform, power in raw form
     mb_(~isnan(mb_))      =    (mb_(~isnan(mb_)));

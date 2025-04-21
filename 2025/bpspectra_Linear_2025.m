@@ -1,4 +1,4 @@
-function [ln_s,frx]=bpspectra_Linear_2025(d,sfx,frxrange,okc)
+function [s,frx]=bpspectra_Linear_2025(d,sfx,frxrange,okc)
 % INPUTS:
 %   d is a matrix of ICEEG voltage values as samples x electrodes x windows
 %   sfx is sampling frequency
@@ -27,12 +27,3 @@ end; clear D W c w L
 toc
 s=nan(nfrx,nch,nwind);
 s(:,okc,:)=spect; clear spect 
-ln_s=nan(size(s));
-ln_s(:,okc,:)=log(s(:,okc,:)); %natural log transform of power
-%             ln_s=s; %or just skip transform
-
-
-
-
-
-
