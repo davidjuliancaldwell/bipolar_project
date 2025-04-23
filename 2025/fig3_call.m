@@ -1,5 +1,5 @@
 
-function fig3_call
+function fig3_call(none1sqrt2log3)
 sizeoffont=10;
 fig = figure(3);
 set(fig, 'Position', [100, 100, 1400, 900]);
@@ -12,7 +12,7 @@ ftl=cellstr(num2str(ft'));
 Txform={'raw','sqrt','ln'};
 if ~exist('none1sqrt2log3','var'); none1sqrt2log3=2; msgbox(['FYI, defaulting to ' Txform{none1sqrt2log3} ', use as input next time']); end
     
-[pt, binz, toplot, frx, binsz, Mbp_distance, ~] = fig3_EachVsAll(pts{1},[],[],none1sqrt2log3);
+[pt, binz, toplot, frx, binsz, Mbp_distance, cm_distance] = fig3_EachVsAll(pts{1},[],[],none1sqrt2log3);
 
 subplot1 = subplot('Position', [0.415, 0.75, 0.18, 0.18]);
 elecsbrain(pt,0,[1:256],[0 0 0],'l',0,2.2,2); alpha 1;
@@ -30,7 +30,7 @@ ylabel('# pairs','fontweight','normal'); axis tight; grid on; cb=colorbar; set(c
 
 clear pt binz toplot frx binsz Mbp_distance cm_distance;
 
-[pt, binz, toplot, frx, binsz, Mbp_distance, ~] = fig3_EachVsAll(pts{2});
+[pt, binz, toplot, frx, binsz, Mbp_distance, cm_distance] = fig3_EachVsAll(pts{2},128*2,250,none1sqrt2log3);
 
 subplot4 = subplot('Position', [0.735, 0.75, 0.18, 0.18]);
 elecsbrain(pt,0,[1:256],[0 0 0],'l',0,2.2,2); alpha 1;
