@@ -17,7 +17,7 @@ elecsbrain(pt,0,[stg],[1 1 0], 0, 0, 5, 2);
 
 xlim_all = [0 40];
 xpos = [10 20 30 40 50 60];
-ypos = [5 10 20 50 100 200];
+ypos = [5 10 20 40 80];
 
 subplot2 = subplot('Position', [0.409, 0.6676, 0.17, 0.187]);
 pcolorjk_djc(binz(2:size(mz_zSpeechSTG,3)+1),frx,avgStimBaseSTG); shading flat; 
@@ -111,7 +111,7 @@ elecsbrain(pt,0,[stg],[1 1 0], 0, 0, 4.5, 2);
 clear;
 xlim_all = [0 40];
 xpos = [10 20 30 40 50 60];
-ypos = [5 10 20 50 100 200];
+ypos = [5 10 20 40 80];
 load('stg_Devon_175_plotdata.mat');
 
 

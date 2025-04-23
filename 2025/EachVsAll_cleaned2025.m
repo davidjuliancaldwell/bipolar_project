@@ -22,7 +22,7 @@ load(tag_spikes_path);
 
 sfx=512;
 frxrange=[2 200]; %frequency range to examine
-ft=[2 5 10 20 50 100 200]; ftl=cellstr(num2str(ft')); %frequency labels for plots
+ft=[2 5 10 20 40 80]; ftl=cellstr(num2str(ft')); %frequency labels for plots
  
 u=dir(datadir); uptbl={}; for i=1:length(u); uname=u(i).name; uptbl{i,1}=uname(1:end-28); end; uptbl(1:2)=[]; clear i u uname
 
@@ -214,7 +214,7 @@ mARb__m=squeeze(mean(sqrt(mARb),3));
  %% plot log-transformed version
  
  
- figure('color','w','position',[[54 223 1907 1102]]); colormap(parula); 
+ figure('color','w','position',[54 223 1907 1102]); colormap(parula); 
  toplot=mean((mb__m_z),3);  % mb or mb_z
  cm_distance=flipud(cmocean('deep',1+ceil(max(max(Mbp_distance)))));
 
@@ -436,7 +436,7 @@ end
 % Chs Plot
 
 
-fig = figure(4); % figure 4
+fig = figure(21); % figure 21
 set(fig, 'Position', [100, 100, 1200, 900]);
 
 subplot1 = subplot('Position', [0.0832, 0.7277, 0.2509, 0.2344]);
@@ -503,7 +503,7 @@ xlim(xldist); xline(10,'k-');
 pts={'EC133','EC175','EC181','EC183','EC186','EC187','EC196','EC219','EC220','EC221','EC222'};
 
 
-ft=[2 5 10 20 50 100 200]; ftl=cellstr(num2str(ft'));
+ft=[2 5 10 20 40 80]; ftl=cellstr(num2str(ft'));
 
 if g1s2d3==1
     pos_ECs = {
