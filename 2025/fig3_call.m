@@ -7,7 +7,7 @@ set(gcf, 'Color', 'white');
 pts = {'EC175', 'EC183'};
 pts_ref = {'Pt. 2', 'Pt. 4'};
 xldist = [0 60];
-ft=[2 5 10 20 50 100 200];
+ft=[2 5 10 20 40 100 200];
 ftl=cellstr(num2str(ft'));
 Txform={'raw','sqrt','ln'};
 if ~exist('none1sqrt2log3','var'); none1sqrt2log3=2; msgbox(['FYI, defaulting to ' Txform{none1sqrt2log3} ', use as input next time']); end
