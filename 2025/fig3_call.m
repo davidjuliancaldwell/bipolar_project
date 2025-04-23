@@ -1,13 +1,13 @@
 
 function fig3_call(none1sqrt2log3)
 sizeoffont=10;
-fig = figure(3);
+fig = figure(6);
 set(fig, 'Position', [100, 100, 1400, 900]);
 set(gcf, 'Color', 'white');
 pts = {'EC175', 'EC183'};
 pts_ref = {'Pt. 2', 'Pt. 4'};
 xldist = [0 60];
-ft=[2 5 10 20 40 100 200];
+ft=[2 5 10 20 40 80];
 ftl=cellstr(num2str(ft'));
 Txform={'raw','sqrt','ln'};
 if ~exist('none1sqrt2log3','var'); none1sqrt2log3=2; msgbox(['FYI, defaulting to ' Txform{none1sqrt2log3} ', use as input next time']); end
