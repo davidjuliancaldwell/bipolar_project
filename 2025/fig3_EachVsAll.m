@@ -30,7 +30,7 @@ load(tag_spikes_path);
 % load('/Users/jonathankleen/Desktop/taggedspikes_April2022.mat')
 sfx=512;
 frxrange=[2 200]; %frequency range to examine
-  ft=[2 5 10 20 50 100 200]; ftl=cellstr(num2str(ft')); %frequency labels for plots
+  ft=[2 5 10 20 40 100 200]; ftl=cellstr(num2str(ft')); %frequency labels for plots
  
 u=dir(datadir); uptbl={}; for i=1:length(u); uname=u(i).name; uptbl{i,1}=uname(1:end-28); end; uptbl(1:2)=[]; clear i u uname
 
@@ -80,7 +80,7 @@ datadir = fullfile(datadir, 'bandpassfiltered');
 %load('/Volumes/KLEEN_DRIVE/David/Bipolar project/taggedspikes_April2022.mat')
 sfx=512;
 frxrange=[2 200]; %frequency range to examine
-  ft=[2 5 10 20 50 100 200]; ftl=cellstr(num2str(ft')); %frequency labels for plots
+  ft=[2 5 10 20 40 100 200]; ftl=cellstr(num2str(ft')); %frequency labels for plots
  
 
 % %% if wanting to only look at grids, strips, or depths, then nan the others
