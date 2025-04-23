@@ -3,7 +3,7 @@
 
 function bipolarexpedition_Linear_2025
 
-linear_analysis(1); Uncomment to create/save data for plotting
+linear_analysis(1); %Uncomment to create/save data for plotting
 plot_linear;
 
 end
@@ -133,7 +133,8 @@ for p=find(okpt) %[4 12:23]
                         end
                       end
                     else %if bipolar spacing is longer than #electrodes in component, nan the component electrodes
-                        d(:,bpN(r,1):bpN(r,2),:)=nan; bp_distance(:,bpN(r,1):bpN(r,2))=nan;
+                        d(:,bpN(r,1):bpN(r,2),:)=nan; 
+                        bp_distance(:,bpN(r,1):bpN(r,2))=nan;
                     end
                 else; i=bpN(r,1); %strips, depths (1-D)
                     N=diff(bpN(r,1:2))+1-bpd; % number of new consecutive bipolar contacts of distance "bpd"
@@ -227,7 +228,7 @@ for p=find(okpt) %[4 12:23]
         eegplotbytime2021(d(:,chtoplot,windowtoplot)',sfx,100,[],0,[.3 .3 .3],1);
     %             for c=1:length(chtoplot); plot(ts,-c*1000+d(:,chtoplot(c),windowtoplot),'color',[0 .6 .6],'linewidth',1); end
         if ~exist('yl','var'); yl=ylim; end; ylim(yl);
-        ylim(yl+(bpd/2+.5))
+        ylim(yl+(bpd/2)) %ylim(yl+(bpd/2+.5))
         axis off
         sp(2,3,4); hold on; 
         for c=chtoplot
@@ -327,6 +328,9 @@ cb.TickLabels=[{'Referential'} ; cellstr(num2str(bpd_mm(2:end)'))];
 
 
 end
+
+
+
 
 %% Section 2
 

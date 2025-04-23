@@ -4,7 +4,8 @@
 function master_bipolar_2025
 
 %Figure 1, electrode maps
-bipolar_electrodemaps_2025;
+bipolar_electrodemaps_2025(1);
+bipolar_electrodemaps_2025(2);
 
 %Figure 2, linear analysis
 bipolarexpedition_Linear_2025 % View documentation with saving/plotting
