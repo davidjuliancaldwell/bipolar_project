@@ -1,9 +1,9 @@
 % BIPOLAR PAIR ANALYSIS: LINEAR
 % Display linear bipolar analysis plots 
 
-function bipolarexpedition_Linear_2025
+function bipolarexpedition_Linear_2025(component_num,none1sqrt2log3)
 
-linear_analysis(1); %Uncomment to create/save data for plotting
+linear_analysis(component_num,none1sqrt2log3); %Uncomment to create/save data for plotting
 plot_linear;
 
 end
@@ -12,7 +12,7 @@ end
 % Run linear analysis on grids, strips, or depths individually, and save 
 % the spectral data per distance into separate arrays
 
-function linear_analysis(component_num) 
+function linear_analysis(component_num,none1sqrt2log3) 
 % component_num - to use either grids (1) or strips (2) or depths (3) but not the others
 
 save_data = false;
@@ -20,14 +20,17 @@ save_data_path = '';
 g1s2d3=component_num; 
 extra_plots = false;
 % how many bipolar steps discretized distances to loop through
-maxbpd=5;
+if g1s2d3==1;     maxbpd=5; 
+elseif g1s2d3==2; maxbpd=2; 
+elseif g1s2d3==3; maxbpd=4; 
+end
 
 switch g1s2d3
     case 1; bpd_mm=4; 
     case 2; bpd_mm=10; 
     case 3; bpd_mm=5; 
 end
-bpd_mm=bpd_mm*(0:maxbpd); %bipolar distances to be evaluated, in mm
+bpd_mm=bpd_mm*(0:10); %bipolar distances to be evaluated, in mm
 
 caxisrange=[0 20];
 cm=cool(17); 
@@ -102,6 +105,9 @@ for p=find(okpt) %[4 12:23]
         [em,~,~]=getelecs(pts{p},2);
         if isempty(em); error(['Missing electrode coordinates for ' pts{p} ', check paths']); end
 
+        D=d;
+
+
     for bpd=0:maxbpd %bipolar distance (# of electrodes to subsample)
         %% bipolar conversion
         % d is a matrix of samples by channels by trials
@@ -112,6 +118,9 @@ for p=find(okpt) %[4 12:23]
         %   next and so the last electrode in the component/row will be nan
         %   (eg., 8 ref elecs --> skip 0 bp --> 7 bp elecs + nan entry) 
         %   (eg., 8 ref elecs --> skip 1 bp --> 6 bp elecs + 2 nan entries), etc 
+
+        d=D; %REFRESH with original referential data
+
         bp_distance=nan(nch,1); %will fill in euclidean distance in 3D space for each bipolar pair created
         if bpd>0
          % linear grid rows, strips, depths
@@ -179,7 +188,6 @@ for p=find(okpt) %[4 12:23]
         [s,frx]=bpspectra_Linear_2025(d,sfx,frxrange,okc);
         
         % transform power before analyzing
-        none1sqrt2log3=2; % 1: no transform, 2: square root, 3: log
         s_Tx=s; % make a copy... then transform the copy
         if none1sqrt2log3==1;     txtyp='raw'; % no transform, power in raw form
             
@@ -189,7 +197,7 @@ for p=find(okpt) %[4 12:23]
             s_Tx=log(s_Tx);
         end
 
-        trm=sq(mean(s_Tx,3))'; %"trial mean": trm is mean of natural log transform of power across windows/trials
+        trm=sq(mean(s_Tx,3))'; %"trial mean": trm is mean of of power across windows/trials
         trm(~okc,:)=nan;
 
         TRM(bpd+1,p,:)=mean(trm(okc,:),1); % Mean
@@ -201,12 +209,14 @@ for p=find(okpt) %[4 12:23]
         hasmat(bpd+1,p)=1;
         Sokc{bpd+1,p}=okc; 
 
-        figure(2); set(gcf,'position',[372 1 1297 865],'color','w'); sp(5,5,p); hold on; %each patient in their own plot
+        figure(2 + double(p==4)); set(gcf,'position',[372 1 1297 865],'color','w'); 
+        if p~=4; sp(5,5,p); else; set(gcf,'position',[495 308 442 453]); end
+        hold on; %each patient in their own plot
          ribbons(frx,trm(okc,:),cm(max([1 bpd_mm(bpd+1)]),:),.5,'sem',0,0); set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
          grid on; title(pts{p}); drawnow; 
          if p==4; 
              xlabel('Frequency (Hz)'); 
-             ylabel('ln(power)'); 
+             ylabel([txtyp '(power)']); 
              legend({'referential','', num2str(bpd_mm(2)),'', num2str(bpd_mm(3)),'',num2str(bpd_mm(4)),'',num2str(bpd_mm(5)),'',num2str(bpd_mm(6))},'location','sw'); 
              axis tight; set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
              colormap(cm);
@@ -219,13 +229,13 @@ for p=find(okpt) %[4 12:23]
 
       %% ECoG trace plots for increasing bipolar spacing (example patient)
       if p==4 
-        figure(5); set(gcf,'color','w','position',[120 187 1586 860])
+        figure(5); set(gcf,'color','w','position',[1 187 1586 860])
         %sp(6,2,(bpd+1)*2-1);
         sp(4,6,bpd+1);
         chtoplot=49:64; %example channels [EC143-49:64, EC175-]
-        windowtoplot=11; %example window
+        windowtoplot=25; %example window
         ts=1/sfx:1/sfx:1; %timestamps for 1-sec window
-        eegplotbytime2021(d(:,chtoplot,windowtoplot)',sfx,100,[],0,[.3 .3 .3],1);
+        eegplotbytime2021(d(:,chtoplot,windowtoplot)',sfx,250,[],0,[.3 .3 .3],1);
     %             for c=1:length(chtoplot); plot(ts,-c*1000+d(:,chtoplot(c),windowtoplot),'color',[0 .6 .6],'linewidth',1); end
         if ~exist('yl','var'); yl=ylim; end; ylim(yl);
         ylim(yl+(bpd/2)) %ylim(yl+(bpd/2+.5))
@@ -234,15 +244,23 @@ for p=find(okpt) %[4 12:23]
         for c=chtoplot
            [specttoplot(c-chtoplot(1)+1,:),frx]=spectrogramjk_chronuxmtfft(sq(d(:,c,windowtoplot)),sfx,frxrange,[.5,1],0);
         end
+        
+        % transform power before plotting
+        if none1sqrt2log3==1
+            specttoplot=    (specttoplot);  % no transform, power in raw form
+        elseif none1sqrt2log3==2 % square root transform
+            specttoplot=sqrt(specttoplot); 
+        elseif none1sqrt2log3==3 % log transform --> problematic because taking % change of certain small negative values creates extreme values
+            specttoplot= log(specttoplot); 
+        end
 
-        specttoplot=log(specttoplot); %data directly from spectrogramjk_chronuxmtfft is not transformed yet 
         ribbons(frx,specttoplot,cm(max([1 bpd_mm(bpd+1)]),:),.3,'sem',0,0); 
         
         %ribbons(frx,trm(chtoplot,:),cm(max([1 bpd_mm(bpd+1)]),:),.3,'sem',0,0); 
         grid on; 
         set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
         clear c specttoplot
-        ylabel('ln(power)'); drawnow; 
+        ylabel([txtyp '(power)']); drawnow; 
 
         if bpd==0
             subplot(2,100,146:175)
@@ -277,7 +295,7 @@ TRSE(:,~okpt,:)=nan;
 % TRbpdist(:,~okpt)=nan;  %********
 
 % plots aggregated across patients
-figure(3); set(gcf,'color','w','position',[88 122 494 624]); %,'position',[1055 216 1217 826]
+figure(4); set(gcf,'color','w','position',[88 122 494 624]); %,'position',[1055 216 1217 826]
 rebase=1;
 rebase_fl=[2 10]; %frequency limits for rebasing to referential signal
 p_rebased=nan(length(pts),1);
@@ -316,7 +334,7 @@ for bpd=[0 1:maxbpd]
     end
   end
 end
-grid on; ylabel('ln(power)'); xlabel('Frequency (Hz)'); ttl=['Mean across patients (n=' num2str(length(find(sum(hasmat,1)))) ')']; title({ttl,''}); 
+grid on; ylabel([txtyp '(power)']); xlabel('Frequency (Hz)'); ttl=['Mean across patients (n=' num2str(length(find(sum(hasmat,1)))) ')']; title({ttl,''}); 
 if rebase; title({ttl,['Rebased to ' num2str(rebase_fl(1)) '-' num2str(rebase_fl(2)) ' Hz referential signal'],''}); end
 set(gca,'xscale','log','xlim',frxrange,'xtick',ft,'XTickLabel',ftl,'ylim',[min(ylim)-.5 max(ylim)])
 for bpd=1:maxbpd; plot(frx,C(bpd,:)*.05*bpd+min(ylim)+.01,'-', 'color',cm(max([1 bpd_mm(bpd+1)]),:),'linewidth',2); end
@@ -404,7 +422,7 @@ ax = gca;
 ax.GridAlpha = 0.3;
 ax.MinorGridAlpha = 0.5;
 xlabel('Frequency (Hz)')
-ylabel('ln(Power), rebased');
+ylabel([txtyp '(power) rebased']);
 ylim([-0.2 1.61]);
 title('Grid Electrodes');
 legend(legendHandles, {'Ref', '4 mm', '8 mm', '12 mm', '16 mm', '20 mm'});
@@ -427,7 +445,7 @@ ax = gca;
 ax.GridAlpha = 0.3;
 ax.MinorGridAlpha = 0.5;
 xlabel('Frequency (Hz)')
-ylabel('ln(Power), rebased');
+ylabel([txtyp '(power) rebased']);
 ylim([-0.2 1.61]);
 title('Depth Electrodes');
 legend(legendHandles, {'Ref', '5 mm', '10 mm', '15 mm', '20 mm'});
@@ -479,7 +497,7 @@ ax.GridAlpha = 0.3;
 ax.MinorGridAlpha = 0.5;
 xlabel('Frequency (Hz)');
 title('Pt.1 1-second Window, Chs 49-64')
-ylabel('ln(power)');
+ylabel([txtyp '(power)']);
 
 end
 
