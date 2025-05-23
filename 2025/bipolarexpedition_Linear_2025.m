@@ -1,10 +1,10 @@
 % BIPOLAR PAIR ANALYSIS: LINEAR
 % Display linear bipolar analysis plots 
 
-function bipolarexpedition_Linear_2025(component_num,none1sqrt2log3)
+function bipolarexpedition_Linear_2025(component_num,transform)
 
-linear_analysis(component_num,none1sqrt2log3); %Uncomment to create/save data for plotting
-plot_linear;
+linear_analysis(component_num,transform); %Uncomment to create/save data for plotting
+plot_linear(transform); %transform of 2 --> sqrt(power)
 
 end
 
@@ -12,13 +12,15 @@ end
 % Run linear analysis on grids, strips, or depths individually, and save 
 % the spectral data per distance into separate arrays
 
-function linear_analysis(component_num,none1sqrt2log3) 
-% component_num - to use either grids (1) or strips (2) or depths (3) but not the others
+function linear_analysis(component_num,transform) 
+%component_num --> grids(1), strips(2), depths(3)
+%transform --> use 2 for sqrt
 
-save_data = false;
-save_data_path = '';
+save_data = true;
+save_data_path = ''; %update to path of output
 g1s2d3=component_num; 
-extra_plots = false;
+%extra_plots = false;
+none1sqrt2log3 = transform;
 % how many bipolar steps discretized distances to loop through
 if g1s2d3==1;     maxbpd=5; 
 elseif g1s2d3==2; maxbpd=2; 
@@ -35,7 +37,7 @@ bpd_mm=bpd_mm*(0:10); %bipolar distances to be evaluated, in mm
 caxisrange=[0 20];
 cm=cool(17); 
 cm=[0 0 0;1 1 1;1 1 1;cm]; %first entry black for referential, rest allows color-coding of physical distance
-% data_root = getenv("KLEEN_DATA");
+data_root = getenv("KLEEN_DATA");
 if ~exist('data_root'); data_root='/Volumes/KLEEN_DRIVE/'; end
 if ~exist('data_root'); data_root='/data/'; end
 datadir = fullfile(data_root, 'bipolar_expedition');
@@ -60,7 +62,7 @@ end
 uptbl(1:2)=[]; 
 clear i u uname
 hasmat=false(maxbpd+1,length(pts));
-    
+
 for p=find(okpt) %[4 12:23]
         pblocks=strfind(uptbl,pts{p}); 
         for i=1:length(pblocks)
@@ -191,7 +193,7 @@ for p=find(okpt) %[4 12:23]
         s_Tx=s; % make a copy... then transform the copy
         if none1sqrt2log3==1;     txtyp='raw'; % no transform, power in raw form
             
-        elseif none1sqrt2log3==2; txtyp='square root'; % square root transform
+        elseif none1sqrt2log3==2; txtyp='sqrt'; % square root transform
             s_Tx=sqrt(s_Tx);
         elseif none1sqrt2log3==3; txtyp='natural log'; % log transform --> problematic because taking % change of certain small negative values creates extreme values
             s_Tx=log(s_Tx);
@@ -253,6 +255,13 @@ for p=find(okpt) %[4 12:23]
         elseif none1sqrt2log3==3 % log transform --> problematic because taking % change of certain small negative values creates extreme values
             specttoplot= log(specttoplot); 
         end
+        
+        if (g1s2d3 == 1) & (save_data) 
+            if bpd == 0
+                dk_spec = cell(1, maxbpd + 1);  % Initialize on first distance
+            end
+                dk_spec{bpd+1} = specttoplot;
+        end
 
         ribbons(frx,specttoplot,cm(max([1 bpd_mm(bpd+1)]),:),.3,'sem',0,0); 
         
@@ -278,14 +287,16 @@ for p=find(okpt) %[4 12:23]
         
         axis off
 
-      end; %set(gcf,'position',[1198 785 498 481]) %to resize spectra for figure
+        if save_data
+            save('spec_dk_sqrt.mat', 'dk_spec', 'frx', 'ft', 'ftl', 'frxrange', 'txtyp');
+        end
+
+      end %set(gcf,'position',[1198 785 498 481]) %to resize spectra for figure
 
 
     end % patient loop
     clear d isbl ptbl pblocks s trm badchI okc nch nwind
 end % bipolar spacing loop
-
-
 
 % additional plots for Linear bipolar analysis: across all patients
 % fill nans for empty (non-analyzed) patients
@@ -302,6 +313,7 @@ p_rebased=nan(length(pts),1);
 hold on
 ps=nan(maxbpd,length(pts),length(frx)); 
 C=nan(maxbpd,length(frx)); Cp=C;
+
 for p=1:length(pts);
       for bpd=[0 1:maxbpd]
         if hasmat(bpd+1,p);
@@ -322,6 +334,34 @@ for p=1:length(pts);
     end
   end
 end
+
+% Saving power spectra averaged across all patients
+
+dk_lin = cell(maxbpd+1, 1);
+
+for i = 1:maxbpd+1
+    valid_patients = hasmat(i,:);
+    if any(valid_patients)
+        dk_lin{i} = squeeze(nanmean(ps(i,valid_patients,:), 2)); %100 F x 1`
+    else
+        dk_lin{i} = nan(size(frx)); % fill with NaNs if no data
+    end
+
+end
+
+if save_data
+    if g1s2d3 == 1
+        save_data_path = [save_data_path 'grid_lin.mat'];
+    elseif g1s2d3 == 2
+        save_data_path = [save_data_path 'strip_lin.mat'];
+    else
+        save_data_path = [save_data_path 'depth_lin.mat'];
+    end
+
+    save('save_data_path', 'dk_lin');
+end
+
+
 for bpd=[0 1:maxbpd]
   if any(hasmat(bpd+1,:))
     %ribbons(frx,sq(ps(bpd+1,find(hasmat(bpd+1,:)),:)),cm(max([1 bpd_mm(bpd+1)]),:),.5,'sem',0,0);
@@ -344,17 +384,22 @@ cb=colorbar;
 cb.Ticks=[0.5 bpd_mm(2:end)-.5]; 
 cb.TickLabels=[{'Referential'} ; cellstr(num2str(bpd_mm(2:end)'))];
 
-
 end
-
-
 
 
 %% Section 2
 
 %Display bipolar linear figure
 
-function plot_linear 
+function plot_linear(transform) 
+
+if transform == 2
+    txtyp = 'sqrt'; %remove when function
+elseif transform == 1
+    txtyp = 'raw'
+else
+    txtyp = 'ln'
+end
 
 fig = figure(2); % figure 4
 set(fig, 'Position', [100, 100, 1200, 900], 'Color', 'w');
@@ -400,10 +445,13 @@ ft=[2 5 10 20 50 100 200]; %frequency tick marks for plots
 frx = 2:2:200;
 ftl=cellstr(num2str(ft'));
 
+ylim_comps = [-4.6 2.4]; %new bounds
+
+
 legendHandles = [];
 
 subgrids = subplot('Position', [0.06, 0.05, 0.25, 0.38]);
-load('dk_grid_lin.mat');
+load('grid_lin.mat');
 grid_dist = [1, 4, 8, 12, 16, 20];
 for i = 1:length(grid_dist)
     hold on;
@@ -423,14 +471,14 @@ ax.GridAlpha = 0.3;
 ax.MinorGridAlpha = 0.5;
 xlabel('Frequency (Hz)')
 ylabel([txtyp '(power) rebased']);
-ylim([-0.2 1.61]);
+ylim(ylim_comps);
 title('Grid Electrodes');
 legend(legendHandles, {'Ref', '4 mm', '8 mm', '12 mm', '16 mm', '20 mm'});
 hold off;
 
 legendHandles = [];
 subdepths = subplot('Position', [0.365, 0.05, 0.25, 0.38]);
-load('dk_depth_lin.mat');
+load('depth_lin.mat'); %updated from dk_depth_lin
 grid_dist = [1, 5, 10, 15, 20];
 for i = 1:length(grid_dist)
     hold on;
@@ -446,14 +494,14 @@ ax.GridAlpha = 0.3;
 ax.MinorGridAlpha = 0.5;
 xlabel('Frequency (Hz)')
 ylabel([txtyp '(power) rebased']);
-ylim([-0.2 1.61]);
+ylim(ylim_comps);
 title('Depth Electrodes');
 legend(legendHandles, {'Ref', '5 mm', '10 mm', '15 mm', '20 mm'});
 hold off;
 
 legendHandles = [];
 substrips = subplot('Position', [0.67, 0.05, 0.31, 0.38]);
-load('dk_strip_lin.mat');
+load('strip_lin.mat');
 grid_dist = [1, 10, 20];
 for i = 1:length(grid_dist)
     hold on;
@@ -468,8 +516,8 @@ ax = gca;
 ax.GridAlpha = 0.3;
 ax.MinorGridAlpha = 0.5;
 xlabel('Frequency (Hz)')
-ylabel('ln(Power), rebased');
-ylim([-0.2 1.61]);
+ylabel([txtyp '(power) rebased']);
+ylim(ylim_comps);
 title('Strip Electrodes');
 legend(legendHandles, {'Ref', '10 mm', '20 mm'});
 hold off;
@@ -483,15 +531,18 @@ cb.TickLabels=[{'Ref.'}, {'4'}, {'8'}, {'12'}, {'16'}, {'20'}];
 ylabel(cb,'Distance (mm)')
 
 %%%
+
 grid_dist = [1, 4, 8, 12, 16, 20];
-load('spec_dk.mat');
+load('spec_dk_sqrt.mat');
 subindividual = subplot('Position', [0.67 0.54 0.25 0.4]);
 for j = 1:length(dk_spec)
     hold on;
     ribbons(frx,dk_spec{j},cm(grid_dist(j),:),.3,'sem',0,0);
+    warning('off');
 end
 grid on;
 set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
+ylim([0 4])
 ax = gca;
 ax.GridAlpha = 0.3;
 ax.MinorGridAlpha = 0.5;
