@@ -1,15 +1,12 @@
 % BIPOLAR PAIR ANALYSIS: EACH VS. ALL to make figures
-function [mDiff, mb_m, mARb_m,Mbp_distance] = EachVsAll_cleaned2025(pt,g1s2d3,none1sqrt2log3);
-%function Mbp_distance = devon_EachVsAll_cleaned(pt)
+%function [mDiff, mb_m, mARb_m,Mbp_distance] = EachVsAll_cleaned2025(pt)
 
 %if ~exist('pt','var')||isempty(pt); pt='EC175'; end %pt='EC175'; % EC175 and EC183 both have intact 16x16 square grids (channel #s 1:256)
 %if ~exist('nchtocheck','var')||isempty(nchtocheck); nchtocheck=128*2; end
 %if ~exist('windowstocheck','var')||isempty(windowstocheck); windowstocheck=250; end %each window is 1 second of data (non-overlapping)
-% pt='EC175'; %pt='EC175'; % EC175 and EC183 both have intact 16x16 square grids (channel #s 1:256)
+pt='EC175'; %pt='EC175'; % EC175 and EC183 both have intact 16x16 square grids (channel #s 1:256)
 windowstocheck=250; %each window is 1 second of data (non-overlapping)
-% g1s2d3=1; % use either grids (1) or strips (2) or depths (3) but not the others
-% none1sqrt2log3 values for the pre-calculation transform: 1: no transform, 2: square root, 3: natural log
-    if ~exist('none1sqrt2log3','var'); none1sqrt2log3=2; msgbox(['FYI, defaulting to ' Txform{none1sqrt2log3} ', use as input next time']); end
+g1s2d3=1; % use either grids (1) or strips (2) or depths (3) but not the others
 doanglerange=0;
 recordings = [];
 
@@ -22,7 +19,7 @@ load(tag_spikes_path);
 
 sfx=512;
 frxrange=[2 200]; %frequency range to examine
-ft=[2 5 10 20 40 80]; ftl=cellstr(num2str(ft')); %frequency labels for plots
+ft=[2 5 10 20 50 100 200]; ftl=cellstr(num2str(ft')); %frequency labels for plots
  
 u=dir(datadir); uptbl={}; for i=1:length(u); uname=u(i).name; uptbl{i,1}=uname(1:end-28); end; uptbl(1:2)=[]; clear i u uname
 
@@ -214,7 +211,7 @@ mARb__m=squeeze(mean(sqrt(mARb),3));
  %% plot log-transformed version
  
  
- figure('color','w','position',[54 223 1907 1102]); colormap(parula); 
+ figure('color','w','position',[[54 223 1907 1102]]); colormap(parula); 
  toplot=mean((mb__m_z),3);  % mb or mb_z
  cm_distance=flipud(cmocean('deep',1+ceil(max(max(Mbp_distance)))));
 
@@ -227,7 +224,7 @@ mARb__m=squeeze(mean(sqrt(mARb),3));
     axis equal off; set(gca,'ydir','normal','xdir','reverse'); colormap(gca,hsv(360)); clim([-180 180]); colorbar('fontsize',12); title('Bipolar pair angle (deg)','fontsize',14,'fontweight','normal')
 
 % Histogram of number of pairs per bin
- subplot(8,2,7); histogram(make1d(Mbp_distance),0:binsz:85,'facecolor',.5*[1 1 1]); set(gca,'fontsize',12); xlabel('Binned bipolar distance (mm)','fontsize',14); 
+ subplot(8,2,7); histogram(make1d(Mbp_distance),0:binsz:60,'facecolor',.5*[1 1 1]); set(gca,'fontsize',12); xlabel('Binned bipolar distance (mm)','fontsize',14); 
  ylabel('Counts/bin','fontweight','normal'); axis tight; grid on; cb=colorbar; set(cb,'visible','off'); xlim(xldist)
 
 %saveas(gcf, '/home/devkrish/bipolar_project/2023/output/LogTransEachVAll.png', 'png');
@@ -258,14 +255,14 @@ end
 
  subplot(2,2,3); 
  pcolorjk(binz(1:size(toplot,2)),frx,toplot); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',14); colorbar; 
- title({'ln(power), z-scored by frequency',''},'fontweight','normal')
+ title({'sqrt(power), z-scored by frequency',''},'fontweight','normal')
  set(gca,'yscale','log','ytick',ft,'yticklabel',ftl); xlim(xldist); clim([-1 1]*(max(abs(clim)))); colormap(gca,cmocean('balance')); %cm=cmocean('balance',100); colormap(gca,cm(:,[2 1 3]))
  clim([-4.5 4.5]);
 
 
  subplot(2,2,4)
  [mx,my]=meshgrid(binz(1:size(toplot,2))+binsz/2,frx);
- surf(mx,my,(toplot)); xlabel('Bipolar distance (mm)','fontsize',14); ylabel('Frequency (Hz)','fontsize',14); zlabel({'ln(power),','z-scored by frequency'},'fontsize',14)
+ surf(mx,my,(toplot)); xlabel('Bipolar distance (mm)','fontsize',14); ylabel('Frequency (Hz)','fontsize',14); zlabel({'sqrt(power),','z-scored by frequency'},'fontsize',14)
  view(140,25); set(gca,'xdir','reverse','ydir','reverse','ytick',ft,'yticklabel',ftl,'fontsize',14); 
  colormap(gca,cmocean('balance')); clim([-1 1]*(max(abs(clim)))); 
  xlim([binsz/2 85]);  axis tight; 
@@ -290,10 +287,7 @@ end
 % will also add a line at 10mm for visualization of this common clinical inter-electrode distance
 
 % transform power before calculating perecent change
-% but first, implement a transform, 
-%       keep in mind averaging and discerning % change are infleunced 
-%       strongly by which transform is used
-% none1sqrt2log3 values: 1: no transform, 2: square root, 3: natural log
+none1sqrt2log3=2; % 1: no transform, 2: square root, 3: log
 mb_=mb; mARb_=mARb; % make a copy... then transform the copy
 if none1sqrt2log3==1;     txtyp='raw'; % no transform, power in raw form
     mb_(~isnan(mb_))      =    (mb_(~isnan(mb_)));
@@ -364,7 +358,7 @@ pcolorjk(binz(1:size(mb_m,2))-binsz,frx,mDiffcopy); shading flat; ylabel('Freque
     %hold on; contour(binz(1:size(mb_m,2))-binsz,frx,mDiff,'k','LineWidth',0.5);
 
 % Histogram of number of pairs per bin
- subplot(11,2,21); histogram(make1d(Mbp_distance),[0.001 binsz:binsz:85],'facecolor',.5*[1 1 1]); set(gca,'fontsize',12); xlabel('Binned bipolar distance (mm)','fontsize',14); 
+ subplot(11,2,21); histogram(make1d(Mbp_distance),[0.001 binsz:binsz:60],'facecolor',.5*[1 1 1]); set(gca,'fontsize',12); xlabel('Binned bipolar distance (mm)','fontsize',14); 
  ylabel('Counts/bin','fontweight','normal'); axis tight; grid on; cb=colorbar; set(cb,'visible','off'); xlim(xldist); yline(10,'k-',.75); set(gca,'fontsize',14); 
  title(pt)
 
@@ -387,8 +381,8 @@ elseif g1s2d3 == 3 %from EC181
     c2=find(use_ch==66);
 else
     rename=2;
-    c1=11;
-    c2=12;
+    c1=18;
+    c2=20;
 end
 
 
@@ -422,7 +416,7 @@ if rename==1
 elseif rename==0
     title(['Ch ' num2str(c1) ' to ' num2str(c2) ' -- ' num2str(Mbp_distance(c1,c2)) 'mm'])
 else
-    title(['Ch ' num2str(309) ' to ' num2str(310) ' -- ' num2str(Mbp_distance(c1,c2)) 'mm'])
+    title(['Ch ' num2str(c1+298) ' to ' num2str(c2+298) ' -- ' num2str(Mbp_distance(c1,c2)) 'mm'])
 end
 
  %cd('~/Desktop/')
@@ -436,14 +430,14 @@ end
 % Chs Plot
 
 
-fig = figure(21); % figure 21
+fig = figure(4); % figure 4
 set(fig, 'Position', [100, 100, 1200, 900]);
 
 subplot1 = subplot('Position', [0.0832, 0.7277, 0.2509, 0.2344]);
-plot(frx,(RAm)  ,'-','linewidth',2.5,'color',[0.6 0.6 0.6], 'DisplayName', [num2str(c1) ' Ref']);  
+plot(frx,(RAm)  ,'-','linewidth',2.5,'color',[0.45 0.45 0.45], 'DisplayName', [num2str(c1) ' Ref']);  
 hold on;
 
-plot(frx,(RBm)  ,'-','linewidth',2.5,'color',[0.6 0.6 0.6], 'DisplayName', [num2str(c2) ' Ref']);
+plot(frx,(RBm)  ,'-','linewidth',2.5,'color',[0.70 0.70 0.70], 'DisplayName', [num2str(c2) ' Ref']);
 hold on;
 
 plot(frx,(RABm),'-' ,'linewidth',3,'color',[0 0 0], 'DisplayName', 'Ref Ave');
@@ -458,7 +452,7 @@ if rename==1
 elseif rename==0
     title(['Ch ' num2str(c1) ' to ' num2str(c2) ' -- ' num2str(Mbp_distance(c1,c2)) 'mm'])
 else
-    title(['Ch ' num2str(299) ' to ' num2str(300) ' -- ' num2str(Mbp_distance(c1,c2)) 'mm'])
+    title(['Ch ' num2str(271) ' to ' num2str(272) ' -- ' num2str(Mbp_distance(c1,c2)) 'mm'])
 end
 
 hLegend = legend('show');
@@ -466,7 +460,7 @@ hLegend.ItemTokenSize = [15, 18];
 
 subplot2 = subplot('Position', [0.0649, 0.6202, 0.2834, 0.0605]); 
 histogram(make1d(Mbp_distance),[0.001 binsz:binsz:85],'facecolor',.5*[1 1 1]); set(subplot2,'fontsize',12); xlabel('Binned bipolar distance (mm)','fontsize',9); 
-ylabel('Counts/bin','fontweight','normal'); axis tight; grid on; xlim(xldist); xline(10,'k-'); 
+ylabel('Counts/bin','fontweight','normal'); axis tight; grid on; xlim(xldist); xline(10,'k-');
 set(subplot2,'fontsize',9); 
 title(pt);
 colormap(jet); 
@@ -474,13 +468,15 @@ clear cax;
 position1 = [0.0584, 0.3356, 0.32, 0.2177]; 
 position2 = [0.0584, 0.0512, 0.32, 0.2177]; 
 
+ft=[2 5 10 20 40 80]; ftl=cellstr(num2str(ft'));
+
 subplot3 = subplot('Position', position1);
 pcolor(binz(1:size(mb_m,2))-binsz, frx, mARb_m); shading flat; 
 ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); 
 set(gca,'fontsize',9); colorbar; 
 %text(max(xlim)+diff(xlim)/4, mean(ylim), '(power)', 'fontsize',12, 'rotation',90, 'horizontalalignment','center')
-title({'Referential Average, ln(Power)'})
-set(gca,'ydir','normal', 'yscale','log', 'ytick',ft, 'yticklabel',ftl, 'xlim',xl, 'ylim',fl);
+title({'Referential Average, sqrt(Power)'})
+set(gca,'ydir','normal', 'yscale','log', 'ytick',ft, 'yticklabel',ftl, 'xlim',xl, 'ylim',[2 80]);
 cax(1,:) = caxis; % Store color axis limits
 
 subplot4 = subplot('Position', position2);
@@ -488,8 +484,8 @@ pcolor(binz(1:size(mb_m,2))-binsz, frx, mb_m); shading flat;
 ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); 
 set(gca,'fontsize',9); colorbar; 
 %text(max(xlim)+diff(xlim)/4, mean(ylim), '(power)', 'fontsize',12, 'rotation',90, 'horizontalalignment','center')
-title(['Bipolar, ln(Power)'])
-set(gca,'ydir','normal', 'yscale','log', 'ytick',ft, 'yticklabel',ftl, 'xlim',xl, 'ylim',fl);
+title(['Bipolar, sqrt(Power)'])
+set(gca,'ydir','normal', 'yscale','log', 'ytick',ft, 'yticklabel',ftl, 'xlim',xl, 'ylim',[2 80]);
 cax(2,:) = caxis; 
 
 combined_cax = [min(cax(:,1)), max(cax(:,2))];
@@ -554,7 +550,7 @@ else
         'EC221', [0.41, 0.2342, 0.165, 0.1522], 
         'EC222', [0.41, 0.0447, 0.165, 0.1522]};
     exclude = [3, 9];
-    load('m_EachVsAll_strips_bins4.mat');
+    load('m_EachVsAll_strips_bins4.mat'); % or bins 2?
     load('frx_binz_depths.mat');
     limptplots = 60;
 end
@@ -587,8 +583,10 @@ for i=1:11
     subplot(subplotHandles(i)); 
     colormap(subplotHandles(i), cm);
     clim(cax); shading flat; set(gca,'yscale','log','ytick',ft,'yticklabel',ftl); %colorbar; 
+    ylim([2 80.001])
+    yticks([2 5 10 20 40 80]);
     xlim([4.00 limptplots]); 
-    xticks([10 20 30 40 50 60 70])
+    xticks([10 20 30 40 50 60 70]);
 end
 
 % all plot
@@ -606,8 +604,9 @@ end
 all_meanplot = subplot('Position', [0.62, 0.0678, 0.363, 0.4844]);
 pcolorjk(binz_re,frx_re,squeeze(nanmean(mDiff_re,1))); shading flat; title('All (mean)'); %nanmean vs mean
 colormap(all_meanplot, cm);
-clim(cax); shading flat; set(gca,'yscale','log','ytick',ft,'yticklabel',ftl); colorbar; xlim([4.00 20]);
+clim(cax); shading flat; set(gca,'yscale','log','ytick',ft,'yticklabel',ftl); colorbar; xlim([4.00 20]); ylim([2.00 80]);
 ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); xticks([4 6 8 10 12 14 16 18 20]);
+%yticks([2 5 10 20 40 80]);
 set(gca,'fontsize',9);
 
 %}

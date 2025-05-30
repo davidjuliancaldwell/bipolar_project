@@ -1,7 +1,7 @@
-% Updated script to do statistics post hoc on data
+% Updated script to do statistics post hoc data analysis
 %% Load in data
 
-function postHocStats
+%function postHocStats
 
 savePostHocPlots = 0;
 run2x2plots = 1;
@@ -12,7 +12,7 @@ folderDataBase = '/scratch/bipolar_expedition/';
 %'/home/devkrish/bipolar_project/JuneResults';
 %folderFiguresCell = {fullfile(folderDataBase,'LL20'),fullfile(folderDataBase,'LL40'),fullfile(folderDataBase,'LL100'),fullfile(folderDataBase,'absDer')};
 saveName = {'LL20_v3','LL40_v3','LL100_v3','absDer_v3'};
-saveName = {'absDer_v3'};
+%saveName = {'absDer_v3'};
 statsStruct = struct;
 
 numch_eachcond = [];

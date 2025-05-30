@@ -1,5 +1,5 @@
 
-function [pt, binz, toplot, frx, binsz, Mbp_distance, cm_distance]=fig3_EachVsAll(pt,nchtocheck,windowstocheck,none1sqrt2log3)
+function [pt, binz, toplot, frx, binsz, Mbp_distance, cm_distance]=fig3_EachVsAll(pt,nchtocheck,windowstocheck)
 
 % BIPOLAR PAIR ANALYSIS: EACH VS. ALL
 % see loopbipolarexpedition.m to loop across patients and analyze
@@ -8,7 +8,7 @@ function [pt, binz, toplot, frx, binsz, Mbp_distance, cm_distance]=fig3_EachVsAl
 if ~exist('nchtocheck','var')||isempty(nchtocheck); nchtocheck=128*2; end
 if ~exist('windowstocheck','var')||isempty(windowstocheck); windowstocheck=250; end %each window is 1 second of data (non-overlapping)
 
-% none1sqrt2log3=2; % 1: no transform, 2: square root, 3: log
+none1sqrt2log3=2; % 1: no transform, 2: square root, 3: log
 g1s2d3=1; % use either grids (1) or strips (2) or depths (3) but not the others
 binsz=2; % bin size in mm
 xldist=[0 60];
@@ -20,9 +20,7 @@ sizeoffont=12;
 
 cm=cool(6); cm(1,:)=[0 0 0];
 %datadir='/Volumes/KLEEN_DRIVE/David/Bipolar project/baseline-high-density-data/'; %bandpassfiltered/';
-% data_root = getenv("KLEEN_DATA");
-if ~exist('data_root'); data_root='/Volumes/KLEEN_DRIVE/'; end
-if ~exist('data_root'); data_root='/data/'; end
+data_root = getenv("KLEEN_DATA");
 datadir = fullfile(data_root, 'bipolar_expedition', 'baseline-high-density-data');
 %cd([datadir])
 tag_spikes_path = fullfile(data_root, 'bipolar_expedition', 'taggedspikes_April2022.mat');
@@ -30,7 +28,7 @@ load(tag_spikes_path);
 % load('/Users/jonathankleen/Desktop/taggedspikes_April2022.mat')
 sfx=512;
 frxrange=[2 200]; %frequency range to examine
-  ft=[2 5 10 20 40 80]; ftl=cellstr(num2str(ft')); %frequency labels for plots
+  ft=[2 5 10 20 50 100 200]; ftl=cellstr(num2str(ft')); %frequency labels for plots
  
 u=dir(datadir); uptbl={}; for i=1:length(u); uname=u(i).name; uptbl{i,1}=uname(1:end-28); end; uptbl(1:2)=[]; clear i u uname
 
@@ -80,7 +78,7 @@ datadir = fullfile(datadir, 'bandpassfiltered');
 %load('/Volumes/KLEEN_DRIVE/David/Bipolar project/taggedspikes_April2022.mat')
 sfx=512;
 frxrange=[2 200]; %frequency range to examine
-  ft=[2 5 10 20 40 80]; ftl=cellstr(num2str(ft')); %frequency labels for plots
+  ft=[2 5 10 20 50 100 200]; ftl=cellstr(num2str(ft')); %frequency labels for plots
  
 
 % %% if wanting to only look at grids, strips, or depths, then nan the others
@@ -127,7 +125,7 @@ windowstocheck=1:windowstocheck; %convert to a vector of windows, 1:X
 %% ALL PAIRS (each vs. all others) analysis and example plot
  d=d(:,:,windowstocheck); clear Straces_allch; %free up RAM by getting rid of whatever won't be used (only using first ___ number of windows)
                  % ***opportunity here to select speech or stim windows
- [M,M_averef,Mbp_distance,frx,~,Mbp_angle]=bpspectra_EachVsAll_2025(d,sfx,frxrange,em,nchtocheck,none1sqrt2log3);
+ [M,M_averef,Mbp_distance,frx,~,Mbp_angle]=bpspectra_EachVsAll_2025(d,sfx,frxrange,em,nchtocheck, none1sqrt2log3);
      % M is bipolarchannel1 X bipolarchannel2 X frx X 1secwindow
  nfrx=length(frx);
  
@@ -230,9 +228,9 @@ switch none1sqrt2log3
 end
 
 
- figure('color','w','position',[54 223 1907 1102]); colormap(parula);
+ figure('color','w','position',[[54 223 1907 1102]]); colormap(parula);
  
- % plot transformed version
+ % plot log-transformed version
  toplot=mean((mb__m_z),3);  % mb or mb_z
  cm_distance=flipud(cmocean('deep',1+ceil(max(max(Mbp_distance)))));
 

@@ -1,26 +1,27 @@
 
-function fig3_call(none1sqrt2log3)
-sizeoffont=10;
-fig = figure(6);
+%function fig3_call
+
+fig = figure(3);
 set(fig, 'Position', [100, 100, 1400, 900]);
 set(gcf, 'Color', 'white');
 pts = {'EC175', 'EC183'};
 pts_ref = {'Pt. 2', 'Pt. 4'};
 xldist = [0 60];
+yldist = [2 80];
 ft=[2 5 10 20 40 80];
 ftl=cellstr(num2str(ft'));
-Txform={'raw','sqrt','ln'};
-if ~exist('none1sqrt2log3','var'); none1sqrt2log3=2; msgbox(['FYI, defaulting to ' Txform{none1sqrt2log3} ', use as input next time']); end
-    
-[pt, binz, toplot, frx, binsz, Mbp_distance, cm_distance] = fig3_EachVsAll(pts{1},[],[],none1sqrt2log3);
+sizeoffont = 12;
+
+[pt, binz, toplot, frx, binsz, Mbp_distance, ~] = fig3_EachVsAll(pts{1});
 
 subplot1 = subplot('Position', [0.415, 0.75, 0.18, 0.18]);
 elecsbrain(pt,0,[1:256],[0 0 0],'l',0,2.2,2); alpha 1;
 
 subplot2 = subplot('Position', [0.37, 0.25, 0.25, 0.4]);
 pcolorjk(binz(1:size(toplot,2)),frx,toplot); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',sizeoffont); %colorbar;
-title({pts_ref{1} ' - ' Txform{none1sqrt2log3} '(power), z-scored by frequency',''},'fontweight','normal')
-set(gca,'yscale','log','ytick',ft,'yticklabel',ftl); xlim(xldist); clim([-1 1]*(max(abs(clim)))); colormap(gca,cmocean('curl')); %cm=cmocean('balance',100); colormap(gca,cm(:,[2 1 3]))
+title({pts_ref{1} ' - ln(power), z-scored by frequency',''},'fontweight','normal')
+set(gca,'yscale','log','ytick',ft,'yticklabel',ftl); xlim(xldist); ylim(yldist);
+clim([-1 1]*(max(abs(clim)))); colormap(gca,cmocean('curl')); %cm=cmocean('balance',100); colormap(gca,cm(:,[2 1 3]))
 clim([-4.5 4.5]);
 
 subplot3 = subplot('Position',[0.37, 0.13, 0.3, 0.06]);
@@ -30,15 +31,16 @@ ylabel('# pairs','fontweight','normal'); axis tight; grid on; cb=colorbar; set(c
 
 clear pt binz toplot frx binsz Mbp_distance cm_distance;
 
-[pt, binz, toplot, frx, binsz, Mbp_distance, cm_distance] = fig3_EachVsAll(pts{2},128*2,250,none1sqrt2log3);
+[pt, binz, toplot, frx, binsz, Mbp_distance, ~] = fig3_EachVsAll(pts{2});
 
 subplot4 = subplot('Position', [0.735, 0.75, 0.18, 0.18]);
 elecsbrain(pt,0,[1:256],[0 0 0],'l',0,2.2,2); alpha 1;
 
 subplot5 = subplot('Position', [0.7, 0.25, 0.3, 0.4]);
 pcolorjk(binz(1:size(toplot,2)),frx,toplot); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',sizeoffont); colorbar;
-title({pts_ref{2} ' - ' Txform{none1sqrt2log3} '(power), z-scored by frequency',''},'fontweight','normal')
-set(gca,'yscale','log','ytick',ft,'yticklabel',ftl); xlim(xldist); clim([-1 1]*(max(abs(clim)))); colormap(gca,cmocean('curl')); %cm=cmocean('balance',100); colormap(gca,cm(:,[2 1 3]))
+title({pts_ref{2} ' - ln(power), z-scored by frequency',''},'fontweight','normal')
+set(gca,'yscale','log','ytick',ft,'yticklabel',ftl); xlim(xldist); ylim(yldist);
+clim([-1 1]*(max(abs(clim)))); colormap(gca,cmocean('curl')); %cm=cmocean('balance',100); colormap(gca,cm(:,[2 1 3]))
 clim([-4.5 4.5]);
 
 subplot6 = subplot('Position',[0.7, 0.13, 0.3, 0.06]);

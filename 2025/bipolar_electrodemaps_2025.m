@@ -4,17 +4,18 @@
 
 %%
 
-function bipolar_electrodemaps_2025(subdural1depths2)
-if ~exist('subdural1depths2','var'); subdural1depths2=1; end % 1: show lateral subdural electrdoe view, 2: show inferior view of depths only
-cd /Volumes/KLEEN_DRIVE/bipolar_expedition/
-fig = figure(100+subdural1depths2);
+function bipolar_electrodemaps_2025
+
+fig = figure(1);
 set(fig, 'Position', [100, 100, 1400, 900]);
 set(gcf, 'Color', 'white');
-pts = {'EC133', 'EC175', 'EC181', 'EC183', 'EC186', 'EC187', 'EC196', 'EC219', 'EC220', 'EC221', 'EC222',};%  'EC131','EC143','EC157','EC162','EC168'};
+%pts = {'EC133', 'EC175', 'EC181', 'EC183', 'EC186', 'EC187', 'EC196', 'EC219', 'EC220', 'EC221', 'EC222'};
+
+pts = {'EC133', 'EC175', 'EC181', 'EC183', 'EC186', 'EC187', 'EC196', 'EC219', 'EC220', 'EC221', 'EC222'};
+% Add'l EC131, EC143, EC157, EC162, EC168
 
 
-
-pts_names = {'Pt. 1', 'Pt. 2', 'Pt. 3', 'Pt. 4', 'Pt. 5', 'Pt. 6', 'Pt. 7', 'Pt. 8', 'Pt. 9', 'Pt. 10', 'Pt. 11'};%   'Pt. 12', 'Pt. 13', 'Pt. 14', 'Pt. 15', 'Pt. 16'};
+pts_names = {'Pt. 1', 'Pt. 2', 'Pt. 3', 'Pt. 4', 'Pt. 5', 'Pt. 6', 'Pt. 7', 'Pt. 8', 'Pt. 9', 'Pt. 10', 'Pt. 11'};
 
 %Brain plot positions
 
@@ -47,17 +48,9 @@ depths = {[281:320],
 %Grids/strips in blue, depths in red
 for i = 1:length(pos)
     subplot('Position', pos{i});
-    elecsbrain(pts{i}, 0, [], [0 0 1], 'b', 0, 2.75, 2);
-    elecsbrain(pts{i}, 0, depths{i}, [1 0 0], 'b', 0, 3.3, 2); 
-    lightsout; 
-    if subdural1depths2==1
-       litebrain('l', 1);
-       alpha 0.5;
-       title(pts_names{i});
-    elseif subdural1depths2==2
-       litebrain('i', 1);
-       alpha 0.3;
-    end
+    elecsbrain(pts{i}, 0, [], [0 0 1], 'b', 0, 2.75, 2); lightsout; litebrain('l', 1); alpha 0.5;
+    elecsbrain(pts{i}, 0, depths{i}, [1 0 0], 'b', 0, 3.3, 2); lightsout; litebrain('l', 1); alpha 0.5;
+    title(pts_names{i});
 end
 
 plot_pos = {[0.62 0.715 0.37 0.25],

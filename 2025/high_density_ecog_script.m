@@ -1,7 +1,7 @@
 
 %UPDATED HIGH DENSITY ECOG PULL
-function high_density_ecog_script
-%%
+%function high_density_ecog_script
+
 %% load data
 doPlotIndSubj = true;
 makeEqualTrials = false;
@@ -34,7 +34,7 @@ namesFilesBaseline = {filesFolderBaseline(:).name};
 load(fileSpikes)
 
 % exclude 129, 130, 137, 175, 183, 187, 191, 196, 219 because < 50 spikes
-ptsTotal = {'EC131';'EC133';'EC143';'EC157';'EC162';'EC168';'EC186';'EC220';'EC221';'EC222'};
+%ptsTotal = {'EC131';'EC133';'EC143';'EC157';'EC162';'EC168';'EC186';'EC220';'EC221';'EC222'};
 ptsTotal = {'EC222'};
 
 %%
@@ -1200,7 +1200,7 @@ for index = 1:length(folderFiguresCell)
 
 end
 
-%{
+
 
 %% Devon Traces (Individual Traces)
 
@@ -1209,7 +1209,7 @@ t = tiledlayout(2,2,'TileSpacing','compact','Padding','compact');
 figavg.Position = [839 109 1408 1229];
 indices = keep(end-29:end);
 ind_red = keep(end-6:end);
-%indices=keep;
+indices=keep;
 
 nexttile
 mean_spike = meanSpikesReferencedGoodOnly(1:512,indices)';
@@ -1233,31 +1233,32 @@ fig_ind = figure;
 t2 = tiledlayout(2,2,'TileSpacing','compact','Padding','compact');
 fig_ind.Position = [839 109 1408 1229];
 indices = keep(end-29:end);
+indices = keep;
 spike=107; %107, 275
 bl=200;
 
 nexttile
 mean_spike = referencedDataGoodOnly(1:512,indices,spike)';
-eegplotbytime2021(mean_spike, 512, 270, [], 0, [0.3 0.3 0.3], 1);
+eegplotbytime2021(mean_spike, 512, 200, [], 0, [0.3 0.3 0.3], 1);
 ylabel('Channels')
 title('Spike - 4 mm BPRR')
 set(gca, 'FontWeight', 'normal')
 
 nexttile
 mean_bl = referencedDataBaselineGoodOnly(1:512,indices, bl)';
-eegplotbytime2021(mean_bl, 512, 270, [], 0, [0.3 0.3 0.3], 1);
+eegplotbytime2021(mean_bl, 512, 200, [], 0, [0.3 0.3 0.3], 1);
 title('Baseline - 4 mm BPRR')
 set(gca, 'FontWeight', 'normal')
 
 nexttile
 mean_spike_sub = referencedDataSubSampleGoodOnly(1:512,indices, spike)';
-eegplotbytime2021(mean_spike_sub, 512, 270, [], 0, [0.3 0.3 0.3], 1);
+eegplotbytime2021(mean_spike_sub, 512, 200, [], 0, [0.3 0.3 0.3], 1);
 title('Spike - 8 mm BPRR')
 set(gca, 'FontWeight', 'normal')
 
 nexttile
 mean_bl_sub = referencedDataBaselineSubSampleGoodOnly(1:512,indices, bl)';
-eegplotbytime2021(mean_bl_sub, 512, 270, [], 0, [0.3 0.3 0.3], 1);
+eegplotbytime2021(mean_bl_sub, 512, 200, [], 0, [0.3 0.3 0.3], 1);
 title('Baseline - 8 mm BPRR')
 set(gca, 'FontWeight', 'normal')
 
