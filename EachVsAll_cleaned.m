@@ -1,5 +1,5 @@
 % BIPOLAR PAIR ANALYSIS: EACH VS. ALL to make figures
-function [mDiff, mb_m, mARb_m, Mbp_distance] = EachVsAll_cleaned2025(pt)
+function [mDiff, mb_m, mARb_m, Mbp_distance] = EachVsAll_cleaned(pt)
 
 %if ~exist('pt','var')||isempty(pt); pt='EC175'; end %pt='EC175'; % EC175 and EC183 both have intact 16x16 square grids (channel #s 1:256)
 %if ~exist('nchtocheck','var')||isempty(nchtocheck); nchtocheck=128*2; end
@@ -11,7 +11,10 @@ recordings = [];
 
 cm=cool(6); cm(1,:)=[0 0 0]; 
 
-data_root = getenv("KLEEN_DATA");
+% data_root = getenv("KLEEN_DATA");
+if ~exist('data_root','dir'); data_root='/Volumes/KLEEN_DRIVE/'; end
+if ~exist('data_root','dir'); data_root='/data/'; end
+if ~exist('data_root','dir'); data_root='~/Desktop/KLEEN_DRIVE/'; end
 datadir = fullfile(data_root, 'bipolar_expedition', 'baseline-high-density-data');
 tag_spikes_path = fullfile(data_root, 'bipolar_expedition', 'taggedspikes_April2022.mat');
 load(tag_spikes_path);
