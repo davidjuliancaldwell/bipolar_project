@@ -1,6 +1,8 @@
 
 function loopbipolarexpedition
 
+none1sqrt2log3=2; % 1: no transform, 2: square root, 3: log
+
 %function [mDiff, mb_m, mARb_m, binz, frx] = d_bipolarexpedition_EachVsAll_2023(pt, nchtocheck, windowstocheck)
 
 % Code for a loop to run all patients and save display outputs

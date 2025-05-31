@@ -1,5 +1,5 @@
 % BIPOLAR PAIR ANALYSIS: EACH VS. ALL to make figures
-function [mDiff, mb_m, mARb_m, Mbp_distance] = EachVsAll_cleaned(pt)
+function [mDiff, mb_m, mARb_m, Mbp_distance] = EachVsAll_cleaned(pt,none1sqrt2log3)
 
 %if ~exist('pt','var')||isempty(pt); pt='EC175'; end %pt='EC175'; % EC175 and EC183 both have intact 16x16 square grids (channel #s 1:256)
 %if ~exist('nchtocheck','var')||isempty(nchtocheck); nchtocheck=128*2; end
@@ -8,6 +8,7 @@ windowstocheck=250; %each window is 1 second of data (non-overlapping)
 g1s2d3=1; % use either grids (1) or strips (2) or depths (3) but not the others
 doanglerange=0;
 recordings = [];
+none1sqrt2log3=2; % 1: no transform, 2: square root, 3: log
 
 cm=cool(6); cm(1,:)=[0 0 0]; 
 
@@ -139,7 +140,7 @@ for c1=1:nchtocheck;
 %%
  % Here
 
- [M,Mrefave,Mbp_distance,frx,~,Mbp_angle]=bpspectra_EachVsAll_2023(d,sfx,frxrange,em,nchtocheck);
+ [M,Mrefave,Mbp_distance,frx,~,Mbp_angle]=bpspectra_EachVsAll_2025(d,sfx,frxrange,em,nchtocheck,none1sqrt2log3);
 
 % [M,Mrefave,frx,~]=dmod_bpspectra_EachVsAll_2023(d,sfx,frxrange,em,nchtocheck);
 
@@ -289,7 +290,6 @@ end
 % will also add a line at 10mm for visualization of this common clinical inter-electrode distance
 
 % transform power before calculating percent change
-none1sqrt2log3=2; % 1: no transform, 2: square root, 3: log
 mb_=mb; mARb_=mARb; % make a copy... then transform the copy
 
 if none1sqrt2log3==1;     txtyp='raw'; % no transform, power in raw form
