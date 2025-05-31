@@ -13,7 +13,7 @@ mDiff=[];  mb_m=[];  mARb_m=[]; Mbp_distance = {}; %rec_lens = {};
 
 for p = 1:size(pts, 2)
     %rec_lens{end+1} = devon_EachVsAll_cleaned(pts{p});
-    [mDiff(p,:,:),mb_m(p,:,:),mARb_m(p,:,:), Mbp_distance{p}]= EachVsAll_cleaned(pts{p}); %concat, add extra dim
+    [mDiff(p,:,:),mb_m(p,:,:),mARb_m(p,:,:), Mbp_distance{p}]= EachVsAll_cleaned(pts{p},none1sqrt2log3); %concat, add extra dim
     disp(['FINISHED LOADING: ' pts{p}]);
 end
 
