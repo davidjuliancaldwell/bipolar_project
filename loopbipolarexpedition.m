@@ -4,7 +4,8 @@ function loopbipolarexpedition
 %function [mDiff, mb_m, mARb_m, binz, frx] = d_bipolarexpedition_EachVsAll_2023(pt, nchtocheck, windowstocheck)
 
 % Code for a loop to run all patients and save display outputs
-pts={'EC133','EC175','EC181','EC183','EC186','EC187','EC196','EC219','EC220','EC221','EC222'};
+pts={'EC133','EC175','EC181','EC183','EC186','EC187','EC196','EC219','EC221','EC222'};
+%remove EC181, %EC220
 %depth_check = [320, 340, 84, 298, 318, 318, 308, 468, 84, 404, 324]; %depth elec nums
 mDiff=[];  mb_m=[];  mARb_m=[]; Mbp_distance = {}; %rec_lens = {};
 
