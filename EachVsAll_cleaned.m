@@ -4,11 +4,10 @@ function [mDiff, mb_m, mARb_m, Mbp_distance] = EachVsAll_cleaned(pt,none1sqrt2lo
 %if ~exist('pt','var')||isempty(pt); pt='EC175'; end %pt='EC175'; % EC175 and EC183 both have intact 16x16 square grids (channel #s 1:256)
 %if ~exist('nchtocheck','var')||isempty(nchtocheck); nchtocheck=128*2; end
 %if ~exist('windowstocheck','var')||isempty(windowstocheck); windowstocheck=250; end %each window is 1 second of data (non-overlapping) %pt='EC175'; % EC175 and EC183 both have intact 16x16 square grids (channel #s 1:256)
-windowstocheck=250; %each window is 1 second of data (non-overlapping)
+windowstocheck=200; %each window is 1 second of data (non-overlapping)
 g1s2d3=1; % use either grids (1) or strips (2) or depths (3) but not the others
 doanglerange=0;
 recordings = [];
-none1sqrt2log3=2; % 1: no transform, 2: square root, 3: log
 
 cm=cool(6); cm(1,:)=[0 0 0]; 
 
