@@ -6,8 +6,8 @@ none1sqrt2log3=2; % 1: no transform, 2: square root, 3: log
 %function [mDiff, mb_m, mARb_m, binz, frx] = d_bipolarexpedition_EachVsAll_2023(pt, nchtocheck, windowstocheck)
 
 % Code for a loop to run all patients and save display outputs
-pts={'EC133','EC175','EC181','EC183','EC186','EC187','EC196','EC219','EC221','EC222'};
-%remove EC181, %EC220
+pts={'EC133','EC175','EC183','EC186','EC187','EC196','EC219','EC221','EC222'};
+%remove EC181, %EC220 because they don't have grids
 %depth_check = [320, 340, 84, 298, 318, 318, 308, 468, 84, 404, 324]; %depth elec nums
 mDiff=[];  mb_m=[];  mARb_m=[]; Mbp_distance = {}; %rec_lens = {};
 
@@ -15,6 +15,8 @@ for p = 1:size(pts, 2)
     %rec_lens{end+1} = devon_EachVsAll_cleaned(pts{p});
     [mDiff(p,:,:),mb_m(p,:,:),mARb_m(p,:,:), Mbp_distance{p}]= EachVsAll_cleaned(pts{p},none1sqrt2log3); %concat, add extra dim
     disp(['FINISHED LOADING: ' pts{p}]);
+    saveas(gcf,['/Users/jonathankleen/Desktop/bipolar_results/May31_2025/' pts{p} '___ex.png']); close
+    tic; save(['/Users/jonathankleen/Desktop/bipolar_results/May31_2025/temp_data_loop.mat']); toc
 end
 
 %%
