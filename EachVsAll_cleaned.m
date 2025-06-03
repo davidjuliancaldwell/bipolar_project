@@ -1,11 +1,10 @@
 % BIPOLAR PAIR ANALYSIS: EACH VS. ALL to make figures
-function [mDiff, mb_m, mARb_m, Mbp_distance] = EachVsAll_cleaned(pt,none1sqrt2log3)
+function [mDiff, mb_m, mARb_m, Mbp_distance] = EachVsAll_cleaned(pt,none1sqrt2log3,g1s2d3)
 
 %if ~exist('pt','var')||isempty(pt); pt='EC175'; end %pt='EC175'; % EC175 and EC183 both have intact 16x16 square grids (channel #s 1:256)
 %if ~exist('nchtocheck','var')||isempty(nchtocheck); nchtocheck=128*2; end
 %if ~exist('windowstocheck','var')||isempty(windowstocheck); windowstocheck=250; end %each window is 1 second of data (non-overlapping) %pt='EC175'; % EC175 and EC183 both have intact 16x16 square grids (channel #s 1:256)
 windowstocheck=200; %each window is 1 second of data (non-overlapping)
-g1s2d3=1; % use either grids (1) or strips (2) or depths (3) but not the others
 doanglerange=0;
 recordings = [];
 
@@ -70,11 +69,11 @@ if g1s2d3 == 1
     binsz=2; % bin size in mm
     xldist = [0 60];
 elseif g1s2d3 == 2
-    use_ch = find(strcmpi('strip', anatomy(:,3)));
+    use_ch = find(strcmpi('depth', anatomy(:,3)));
     binsz = 4;
     xldist = [0 60];
 else
-    use_ch = find(strcmpi('depth', anatomy(:,3)));
+    use_ch = find(strcmpi('strip', anatomy(:,3)));
     binsz = 4; %binsz=2;
     xldist = [0 60];
 end
