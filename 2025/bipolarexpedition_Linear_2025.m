@@ -4,7 +4,7 @@
 function bipolarexpedition_Linear_2025(component_num,transform)
 
 linear_analysis(component_num,transform); %Uncomment to create/save data for plotting
-plot_linear(transform); %transform of 2 --> sqrt(power)
+%plot_linear(transform); %transform of 2 --> sqrt(power)
 
 end
 
@@ -338,31 +338,23 @@ end
 
 % Saving power spectra averaged across all patients
 
-dk_lin = cell(maxbpd+1, 1);
+dk_lin = cell(1, maxbpd + 1);
 
-for i = 1:maxbpd+1
-    valid_patients = hasmat(i,:);
-    if any(valid_patients)
-        dk_lin{i} = squeeze(nanmean(ps(i,valid_patients,:), 2)); %100 F x 1`
-    else
-        dk_lin{i} = nan(size(frx)); % fill with NaNs if no data
-    end
-
+for i = 1:maxbpd + 1
+    dk_lin{i} = squeeze(ps(i, :, :));  % 11 patients × 100 frequency bins
 end
 
 if save_data
     if g1s2d3 == 1
-        save_data_path = [save_data_path 'grid_lin_new.mat'];
+        save_data_path = [save_data_path 'grid_lin_new_FINAL.mat'];
     elseif g1s2d3 == 2
         save_data_path = [save_data_path 'strip_lin_new.mat'];
     elseif g1s2d3 == 3
         save_data_path = [save_data_path 'depth_lin_new.mat'];
     end
 
-    save('save_data_path', 'dk_lin');
+    save(save_data_path, 'dk_lin');
 end
-
-
 
 
 % 
