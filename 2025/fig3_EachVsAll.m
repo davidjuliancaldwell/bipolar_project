@@ -21,6 +21,9 @@ sizeoffont=12;
 cm=cool(6); cm(1,:)=[0 0 0];
 %datadir='/Volumes/KLEEN_DRIVE/David/Bipolar project/baseline-high-density-data/'; %bandpassfiltered/';
 data_root = getenv("KLEEN_DATA");
+if ~exist('data_root','dir'); data_root='/Volumes/KLEEN_DRIVE/'; end
+if ~exist('data_root','dir'); data_root='/data/'; end
+if ~exist('data_root','dir'); data_root='~/Desktop/KLEEN_DRIVE/'; end
 datadir = fullfile(data_root, 'bipolar_expedition', 'baseline-high-density-data');
 %cd([datadir])
 tag_spikes_path = fullfile(data_root, 'bipolar_expedition', 'taggedspikes_April2022.mat');

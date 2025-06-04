@@ -63,7 +63,7 @@ okpt=false(1,length(pts));
 
 %% LINEAR PAIRS analysis and plots
 figure(1); set(gcf,'color','w','position',[372 1 1297 1337]); 
-u=dir(fullfile(datadir, 'baseline-high-density-data')); uptbl={}; 
+u=dir(fullfile(datadir)); uptbl={}; 
 for i=1:length(u)
     uname=u(i).name; 
     uptbl{i,1}=uname(1:end-28); 

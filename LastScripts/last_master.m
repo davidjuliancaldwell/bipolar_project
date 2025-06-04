@@ -3,14 +3,14 @@ function last_master
 
 % finishing analyses, outputting data for final plots
 
-do_fig2_grids = true;
+do_fig2_grids = false;
 do_fig4 = false; % set to true if havent executed yet
 do_fig3 = true;
 do_supp1 = true;
 
 if do_fig2_grids
 
-    bipolarexpedition_Linear_2025Grid(1,2); % save grid linear (sqrt)
+    bipolarexpedition_Linear_2025(1,2); % save grid linear (sqrt)
 
     % Note --> can recompute supp fig 1 by simply accessing dk_lin variable
 end

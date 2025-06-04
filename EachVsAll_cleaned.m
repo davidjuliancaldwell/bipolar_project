@@ -70,11 +70,11 @@ if g1s2d3 == 1
     xldist = [0 60];
 elseif g1s2d3 == 2
     use_ch = find(strcmpi('depth', anatomy(:,3)));
-    binsz = 4;
+    binsz = 2;
     xldist = [0 60];
 else
     use_ch = find(strcmpi('strip', anatomy(:,3)));
-    binsz = 4; %binsz=2;
+    binsz = 2; %binsz=2;
     xldist = [0 60];
 end
 

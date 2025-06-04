@@ -17,7 +17,7 @@ function linear_analysis(component_num,transform)
 %transform --> use 2 for sqrt
 
 save_data = true;
-save_data_path = ''; %update to path of output
+save_data_path = '/Users/jonathankleen/Desktop/bipolar_results/'; %update to path of output
 g1s2d3=component_num; 
 %extra_plots = false;
 none1sqrt2log3 = transform;
@@ -40,6 +40,7 @@ cm=[0 0 0;1 1 1;1 1 1;cm]; %first entry black for referential, rest allows color
 data_root = getenv("KLEEN_DATA");
 if ~exist('data_root'); data_root='/Volumes/KLEEN_DRIVE/'; end
 if ~exist('data_root'); data_root='/data/'; end
+if ~exist('data_root','dir'); data_root='~/Desktop/KLEEN_DRIVE/'; end
 datadir = fullfile(data_root, 'bipolar_expedition');
 tag_spikes_path = fullfile(datadir, 'taggedspikes_April2022.mat');
 load(tag_spikes_path);
@@ -351,204 +352,207 @@ end
 
 if save_data
     if g1s2d3 == 1
-        save_data_path = [save_data_path 'grid_lin.mat'];
+        save_data_path = [save_data_path 'grid_lin_new.mat'];
     elseif g1s2d3 == 2
-        save_data_path = [save_data_path 'strip_lin.mat'];
-    else
-        save_data_path = [save_data_path 'depth_lin.mat'];
+        save_data_path = [save_data_path 'strip_lin_new.mat'];
+    elseif g1s2d3 == 3
+        save_data_path = [save_data_path 'depth_lin_new.mat'];
     end
 
     save('save_data_path', 'dk_lin');
 end
 
 
-for bpd=[0 1:maxbpd]
-  if any(hasmat(bpd+1,:))
-    %ribbons(frx,sq(ps(bpd+1,find(hasmat(bpd+1,:)),:)),cm(max([1 bpd_mm(bpd+1)]),:),.5,'sem',0,0);
-    %plot(frx,sq(nanmean(ps(bpd+1,hasmat(bpd+1,:),:),2)), 'color',cm(max([1 bpd_mm(bpd+1)]),:),'linewidth',4); 
-    plot(frx,sq((ps(bpd+1,hasmat(bpd+1,:),:))), 'color',cm(max([1 bpd_mm(bpd+1)]),:),'linewidth',1); 
-    hold on
-    if bpd>0
-    [clusters, p_values, ~, ~ ] = permutest(sq(ps(bpd+1,hasmat(bpd+1,:),:))',sq(ps(1,hasmat(bpd+1,:),:))',0); clusters(p_values>=0.05)=[]; p_values(p_values>=0.05)=[];
-      for i=1:length(clusters); Cp(bpd,clusters{i})=p_values(i); C(bpd,clusters{i})=1; end;
-    end
-  end
-end
-grid on; ylabel([txtyp '(power)']); xlabel('Frequency (Hz)'); ttl=['Mean across patients (n=' num2str(length(find(sum(hasmat,1)))) ')']; title({ttl,''}); 
-if rebase; title({ttl,['Rebased to ' num2str(rebase_fl(1)) '-' num2str(rebase_fl(2)) ' Hz referential signal'],''}); end
-set(gca,'xscale','log','xlim',frxrange,'xtick',ft,'XTickLabel',ftl,'ylim',[min(ylim)-.5 max(ylim)])
-for bpd=1:maxbpd; plot(frx,C(bpd,:)*.05*bpd+min(ylim)+.01,'-', 'color',cm(max([1 bpd_mm(bpd+1)]),:),'linewidth',2); end
-colormap(gca,cm);
-caxis(caxisrange); 
-cb=colorbar; 
-cb.Ticks=[0.5 bpd_mm(2:end)-.5]; 
-cb.TickLabels=[{'Referential'} ; cellstr(num2str(bpd_mm(2:end)'))];
-
-end
 
 
-%% Section 2
-
-%Display bipolar linear figure
-
-function plot_linear(transform) 
-
-if transform == 2
-    txtyp = 'sqrt'; %remove when function
-elseif transform == 1
-    txtyp = 'raw'
-else
-    txtyp = 'ln'
-end
-
-fig = figure(2); % figure 4
-set(fig, 'Position', [100, 100, 1200, 900], 'Color', 'w');
-load('eegbytime_dk.mat'); %Contains example of linear bipolar window data
-
-brainplot = subplot('Position', [0.15, 0.63, 0.33, 0.33]);
-pt = 'EC133';
-elecsbrain(pt,0,[1:128],[0.7 0.7 0.7],'l',0,5.5,2); alpha 1; litebrain('l',.2);
-elecsbrain(pt,0,[49:64],[1 1 0], 0, 0, 5.5, 2);
-title('Pt. 1');
-
-timepos = {[0.03, 0.515, 0.09, 0.11],
-           [0.134, 0.512, 0.09, 0.11],
-           [0.238, 0.507, 0.09, 0.11],
-           [0.342, 0.502, 0.09, 0.11],
-           [0.446, 0.497, 0.09, 0.11],
-           [0.55, 0.492, 0.09, 0.11]};
-
-x = 1:6;
-y = ones(1,6);
-
-cmap = [1 1 0];
-
-timetitles = {"Referential (16 ch)", "4 mm bipolar (15 ch)", "8 mm bipolar (14 ch)", "12 mm bipolar (13 ch)", "16 mm bipolar (12 ch)", "20 mm bipolar (11 ch)"};
-lw = 0.65;
-%%
-%fig = figure(6); % figure 4
-%set(fig, 'Position', [100, 100, 1300, 900], 'Color', 'w');
-
-for i=1:length(timepos)
-    subplot('Position', timepos{i});
-    eegplotbytime2021(dkoutput{i},512,225,[],0,[.3 .3 .3],lw);
-    axis off; box off;
-    %xlabel(timetitles{i});
-    %title(timetitles{i}, 'FontWeight','normal');
-end
-
-caxisrange=[0 20];
-cm=cool(17); 
-cm=[0 0 0;1 1 1;1 1 1;cm];
-frxrange=[2 200]; %frequency range to examine
-ft=[2 5 10 20 50 100 200]; %frequency tick marks for plots
-frx = 2:2:200;
-ftl=cellstr(num2str(ft'));
-
-ylim_comps = [-4.6 2.4]; %new bounds
-
-
-legendHandles = [];
-
-subgrids = subplot('Position', [0.06, 0.05, 0.25, 0.38]);
-load('grid_lin.mat');
-grid_dist = [1, 4, 8, 12, 16, 20];
-for i = 1:length(grid_dist)
-    hold on;
-    h = plot(frx, dk_lin{i}, 'Color', cm(grid_dist(i),:), 'LineWidth', 6)
-    h.Color(4) = 0.3;
-    h2 = plot(frx, dk_lin{i}, 'Color', cm(grid_dist(i),:), 'LineWidth', 2.25);
-    
-    %h2 = ribbons(frx, dk_lin{i}',cm(grid_dist(i),:), .3, 'sem', 0, 0);
-    %ribbons(frx,dk_spec{j},cm(grid_dist(j),:),.3,'sem',0,0);
-
-    legendHandles = [legendHandles, h2];
-end
-grid on;
-set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
-ax = gca;
-ax.GridAlpha = 0.3;
-ax.MinorGridAlpha = 0.5;
-xlabel('Frequency (Hz)')
-ylabel([txtyp '(power) rebased']);
-ylim(ylim_comps);
-title('Grid Electrodes');
-legend(legendHandles, {'Ref', '4 mm', '8 mm', '12 mm', '16 mm', '20 mm'});
-hold off;
-
-legendHandles = [];
-subdepths = subplot('Position', [0.365, 0.05, 0.25, 0.38]);
-load('depth_lin.mat'); %updated from dk_depth_lin
-grid_dist = [1, 5, 10, 15, 20];
-for i = 1:length(grid_dist)
-    hold on;
-    h = plot(frx, dk_lin{i}, 'Color', cm(grid_dist(i),:), 'LineWidth', 6)
-    h.Color(4) = 0.3;
-    h2 = plot(frx, dk_lin{i}, 'Color', cm(grid_dist(i),:), 'LineWidth', 2.25);
-    legendHandles = [legendHandles, h2];
-end
-grid on;
-set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
-ax = gca;
-ax.GridAlpha = 0.3;
-ax.MinorGridAlpha = 0.5;
-xlabel('Frequency (Hz)')
-ylabel([txtyp '(power) rebased']);
-ylim(ylim_comps);
-title('Depth Electrodes');
-legend(legendHandles, {'Ref', '5 mm', '10 mm', '15 mm', '20 mm'});
-hold off;
-
-legendHandles = [];
-substrips = subplot('Position', [0.67, 0.05, 0.31, 0.38]);
-load('strip_lin.mat');
-grid_dist = [1, 10, 20];
-for i = 1:length(grid_dist)
-    hold on;
-    h = plot(frx, dk_lin{i}, 'Color', cm(grid_dist(i),:), 'LineWidth', 6)
-    h.Color(4) = 0.3;
-    h2 = plot(frx, dk_lin{i}, 'Color', cm(grid_dist(i),:), 'LineWidth', 2.25);
-    legendHandles = [legendHandles, h2];
-end
-grid on;
-set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
-ax = gca;
-ax.GridAlpha = 0.3;
-ax.MinorGridAlpha = 0.5;
-xlabel('Frequency (Hz)')
-ylabel([txtyp '(power) rebased']);
-ylim(ylim_comps);
-title('Strip Electrodes');
-legend(legendHandles, {'Ref', '10 mm', '20 mm'});
-hold off;
-
-colormap(gca,cm); 
-caxis(caxisrange); 
-cb=colorbar; 
-grid_dist = [1, 4, 8, 12, 16, 20];
-cb.Ticks=[0.5 grid_dist(2:end)-.5]; 
-cb.TickLabels=[{'Ref.'}, {'4'}, {'8'}, {'12'}, {'16'}, {'20'}];
-ylabel(cb,'Distance (mm)')
-
-%%%
-
-grid_dist = [1, 4, 8, 12, 16, 20];
-load('spec_dk_sqrt.mat');
-subindividual = subplot('Position', [0.67 0.54 0.25 0.4]);
-for j = 1:length(dk_spec)
-    hold on;
-    ribbons(frx,dk_spec{j},cm(grid_dist(j),:),.3,'sem',0,0);
-    warning('off');
-end
-grid on;
-set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
-ylim([0 4])
-ax = gca;
-ax.GridAlpha = 0.3;
-ax.MinorGridAlpha = 0.5;
-xlabel('Frequency (Hz)');
-title('Pt.1 1-second Window, Chs 49-64')
-ylabel([txtyp '(power)']);
+% 
+% for bpd=[0 1:maxbpd]
+%   if any(hasmat(bpd+1,:))
+%     %ribbons(frx,sq(ps(bpd+1,find(hasmat(bpd+1,:)),:)),cm(max([1 bpd_mm(bpd+1)]),:),.5,'sem',0,0);
+%     %plot(frx,sq(nanmean(ps(bpd+1,hasmat(bpd+1,:),:),2)), 'color',cm(max([1 bpd_mm(bpd+1)]),:),'linewidth',4); 
+%     plot(frx,sq((ps(bpd+1,hasmat(bpd+1,:),:))), 'color',cm(max([1 bpd_mm(bpd+1)]),:),'linewidth',1); 
+%     hold on
+%     if bpd>0
+%     [clusters, p_values, ~, ~ ] = permutest(sq(ps(bpd+1,hasmat(bpd+1,:),:))',sq(ps(1,hasmat(bpd+1,:),:))',0); clusters(p_values>=0.05)=[]; p_values(p_values>=0.05)=[];
+%       for i=1:length(clusters); Cp(bpd,clusters{i})=p_values(i); C(bpd,clusters{i})=1; end;
+%     end
+%   end
+% end
+% grid on; ylabel([txtyp '(power)']); xlabel('Frequency (Hz)'); ttl=['Mean across patients (n=' num2str(length(find(sum(hasmat,1)))) ')']; title({ttl,''}); 
+% if rebase; title({ttl,['Rebased to ' num2str(rebase_fl(1)) '-' num2str(rebase_fl(2)) ' Hz referential signal'],''}); end
+% set(gca,'xscale','log','xlim',frxrange,'xtick',ft,'XTickLabel',ftl,'ylim',[min(ylim)-.5 max(ylim)])
+% for bpd=1:maxbpd; plot(frx,C(bpd,:)*.05*bpd+min(ylim)+.01,'-', 'color',cm(max([1 bpd_mm(bpd+1)]),:),'linewidth',2); end
+% colormap(gca,cm);
+% caxis(caxisrange); 
+% cb=colorbar; 
+% cb.Ticks=[0.5 bpd_mm(2:end)-.5]; 
+% cb.TickLabels=[{'Referential'} ; cellstr(num2str(bpd_mm(2:end)'))];
+% 
+% end
+% 
+% 
+% %% Section 2
+% 
+% %Display bipolar linear figure
+% 
+% function plot_linear(transform) 
+% 
+% if transform == 2
+%     txtyp = 'sqrt'; %remove when function
+% elseif transform == 1
+%     txtyp = 'raw'
+% else
+%     txtyp = 'ln'
+% end
+% 
+% fig = figure(2); % figure 4
+% set(fig, 'Position', [100, 100, 1200, 900], 'Color', 'w');
+% load('eegbytime_dk.mat'); %Contains example of linear bipolar window data
+% 
+% brainplot = subplot('Position', [0.15, 0.63, 0.33, 0.33]);
+% pt = 'EC133';
+% elecsbrain(pt,0,[1:128],[0.7 0.7 0.7],'l',0,5.5,2); alpha 1; litebrain('l',.2);
+% elecsbrain(pt,0,[49:64],[1 1 0], 0, 0, 5.5, 2);
+% title('Pt. 1');
+% 
+% timepos = {[0.03, 0.515, 0.09, 0.11],
+%            [0.134, 0.512, 0.09, 0.11],
+%            [0.238, 0.507, 0.09, 0.11],
+%            [0.342, 0.502, 0.09, 0.11],
+%            [0.446, 0.497, 0.09, 0.11],
+%            [0.55, 0.492, 0.09, 0.11]};
+% 
+% x = 1:6;
+% y = ones(1,6);
+% 
+% cmap = [1 1 0];
+% 
+% timetitles = {"Referential (16 ch)", "4 mm bipolar (15 ch)", "8 mm bipolar (14 ch)", "12 mm bipolar (13 ch)", "16 mm bipolar (12 ch)", "20 mm bipolar (11 ch)"};
+% lw = 0.65;
+% %%
+% %fig = figure(6); % figure 4
+% %set(fig, 'Position', [100, 100, 1300, 900], 'Color', 'w');
+% 
+% for i=1:length(timepos)
+%     subplot('Position', timepos{i});
+%     eegplotbytime2021(dkoutput{i},512,225,[],0,[.3 .3 .3],lw);
+%     axis off; box off;
+%     %xlabel(timetitles{i});
+%     %title(timetitles{i}, 'FontWeight','normal');
+% end
+% 
+% caxisrange=[0 20];
+% cm=cool(17); 
+% cm=[0 0 0;1 1 1;1 1 1;cm];
+% frxrange=[2 200]; %frequency range to examine
+% ft=[2 5 10 20 50 100 200]; %frequency tick marks for plots
+% frx = 2:2:200;
+% ftl=cellstr(num2str(ft'));
+% 
+% ylim_comps = [-4.6 2.4]; %new bounds
+% 
+% 
+% legendHandles = [];
+% 
+% subgrids = subplot('Position', [0.06, 0.05, 0.25, 0.38]);
+% load('grid_lin.mat');
+% grid_dist = [1, 4, 8, 12, 16, 20];
+% for i = 1:length(grid_dist)
+%     hold on;
+%     h = plot(frx, dk_lin{i}, 'Color', cm(grid_dist(i),:), 'LineWidth', 6)
+%     h.Color(4) = 0.3;
+%     h2 = plot(frx, dk_lin{i}, 'Color', cm(grid_dist(i),:), 'LineWidth', 2.25);
+% 
+%     %h2 = ribbons(frx, dk_lin{i}',cm(grid_dist(i),:), .3, 'sem', 0, 0);
+%     %ribbons(frx,dk_spec{j},cm(grid_dist(j),:),.3,'sem',0,0);
+% 
+%     legendHandles = [legendHandles, h2];
+% end
+% grid on;
+% set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
+% ax = gca;
+% ax.GridAlpha = 0.3;
+% ax.MinorGridAlpha = 0.5;
+% xlabel('Frequency (Hz)')
+% ylabel([txtyp '(power) rebased']);
+% ylim(ylim_comps);
+% title('Grid Electrodes');
+% legend(legendHandles, {'Ref', '4 mm', '8 mm', '12 mm', '16 mm', '20 mm'});
+% hold off;
+% 
+% legendHandles = [];
+% subdepths = subplot('Position', [0.365, 0.05, 0.25, 0.38]);
+% load('depth_lin.mat'); %updated from dk_depth_lin
+% grid_dist = [1, 5, 10, 15, 20];
+% for i = 1:length(grid_dist)
+%     hold on;
+%     h = plot(frx, dk_lin{i}, 'Color', cm(grid_dist(i),:), 'LineWidth', 6)
+%     h.Color(4) = 0.3;
+%     h2 = plot(frx, dk_lin{i}, 'Color', cm(grid_dist(i),:), 'LineWidth', 2.25);
+%     legendHandles = [legendHandles, h2];
+% end
+% grid on;
+% set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
+% ax = gca;
+% ax.GridAlpha = 0.3;
+% ax.MinorGridAlpha = 0.5;
+% xlabel('Frequency (Hz)')
+% ylabel([txtyp '(power) rebased']);
+% ylim(ylim_comps);
+% title('Depth Electrodes');
+% legend(legendHandles, {'Ref', '5 mm', '10 mm', '15 mm', '20 mm'});
+% hold off;
+% 
+% legendHandles = [];
+% substrips = subplot('Position', [0.67, 0.05, 0.31, 0.38]);
+% load('strip_lin.mat');
+% grid_dist = [1, 10, 20];
+% for i = 1:length(grid_dist)
+%     hold on;
+%     h = plot(frx, dk_lin{i}, 'Color', cm(grid_dist(i),:), 'LineWidth', 6)
+%     h.Color(4) = 0.3;
+%     h2 = plot(frx, dk_lin{i}, 'Color', cm(grid_dist(i),:), 'LineWidth', 2.25);
+%     legendHandles = [legendHandles, h2];
+% end
+% grid on;
+% set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
+% ax = gca;
+% ax.GridAlpha = 0.3;
+% ax.MinorGridAlpha = 0.5;
+% xlabel('Frequency (Hz)')
+% ylabel([txtyp '(power) rebased']);
+% ylim(ylim_comps);
+% title('Strip Electrodes');
+% legend(legendHandles, {'Ref', '10 mm', '20 mm'});
+% hold off;
+% 
+% colormap(gca,cm); 
+% caxis(caxisrange); 
+% cb=colorbar; 
+% grid_dist = [1, 4, 8, 12, 16, 20];
+% cb.Ticks=[0.5 grid_dist(2:end)-.5]; 
+% cb.TickLabels=[{'Ref.'}, {'4'}, {'8'}, {'12'}, {'16'}, {'20'}];
+% ylabel(cb,'Distance (mm)')
+% 
+% %%%
+% 
+% grid_dist = [1, 4, 8, 12, 16, 20];
+% load('spec_dk_sqrt.mat');
+% subindividual = subplot('Position', [0.67 0.54 0.25 0.4]);
+% for j = 1:length(dk_spec)
+%     hold on;
+%     ribbons(frx,dk_spec{j},cm(grid_dist(j),:),.3,'sem',0,0);
+%     warning('off');
+% end
+% grid on;
+% set(gca,'xlim',frxrange,'xscale','log','xtick',ft,'XTickLabel',ftl)
+% ylim([0 4])
+% ax = gca;
+% ax.GridAlpha = 0.3;
+% ax.MinorGridAlpha = 0.5;
+% xlabel('Frequency (Hz)');
+% title('Pt.1 1-second Window, Chs 49-64')
+% ylabel([txtyp '(power)']);
 
 end
 

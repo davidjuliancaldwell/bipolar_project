@@ -1,7 +1,7 @@
 
-function loopbipolarexpedition
+function loopbipolarexpedition(g1d2s3)
 
-g1d2s3=2;
+% g1d2s3=3;
 
 
 none1sqrt2log3=2; % 1: no transform, 2: square root, 3: log
@@ -24,10 +24,10 @@ mDiff=[];  mb_m=[];  mARb_m=[]; Mbp_distance = {}; %rec_lens = {};
 
 for p = 1:size(pts, 2)
     %rec_lens{end+1} = devon_EachVsAll_cleaned(pts{p});
-    [mDiff(p,:,:),mb_m(p,:,:),mARb_m(p,:,:), Mbp_distance{p}]= EachVsAll_cleaned(pts{p},none1sqrt2log3,g1d2s3); %concat, add extra dim
+    [mDiff(p,:,:),mb_m(p,:,:),mARb_m(p,:,:), Mbp_distance{p}]= EachVsAll_cleaned_June3(pts{p},none1sqrt2log3,g1d2s3); %concat, add extra dim
     disp(['FINISHED LOADING: ' pts{p}]);
-    saveas(gcf,['/Users/jonathankleen/Desktop/bipolar_results/' component_type '_June2_2025/' pts{p} '___ex.png']); close
-    tic; save(['/Users/jonathankleen/Desktop/bipolar_results/' component_type '_June2_2025/temp_data_loop.mat']); toc
+    saveas(gcf,['/Users/jonathankleen/Desktop/bipolar_results/' component_type '_June3_2025_3mm/' pts{p} '___ex.png']); close
+    tic; save(['/Users/jonathankleen/Desktop/bipolar_results/' component_type '_June3_2025_3mm/temp_data_loop.mat']); toc
 end
 
 %%
@@ -37,8 +37,8 @@ mb_m_re = mb_m;
 mARb_m_re = mARb_m;
 distance = Mbp_distance;
 
-save(['/Users/jonathankleen/Desktop/bipolar_results/' component_type '_June2_2025/m_EachVsAll_' component_type '.mat'], 'mDiff_re', 'mb_m_re', 'mARb_m_re');
-save(['/Users/jonathankleen/Desktop/bipolar_results/' component_type '_June2_2025/' component_type '_distances.mat'], 'distance');
+save(['/Users/jonathankleen/Desktop/bipolar_results/' component_type '_June3_2025_3mm/m_EachVsAll_' component_type '.mat'], 'mDiff_re', 'mb_m_re', 'mARb_m_re');
+save(['/Users/jonathankleen/Desktop/bipolar_results/' component_type '_June3_2025_3mm/' component_type '_distances.mat'], 'distance');
 
 end
 
