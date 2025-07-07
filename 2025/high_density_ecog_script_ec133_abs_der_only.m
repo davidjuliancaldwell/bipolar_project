@@ -8,7 +8,9 @@ makeEqualTrials = false;
 doPerm = true;
 doInd = true;
 plotPermChans = true;
-savePlots = true;
+doConn = false;
+doSVM = false;
+savePlots = false;
 
 % some algorithm = plotting choices, defaults are for raw spikes, for line length
 % algorthim the choices are further below
@@ -30,8 +32,8 @@ namesFilesBaseline = {filesFolderBaseline(:).name};
 load(fileSpikes)
 
 % exclude 129, 130, 137, 175, 183, 187, 191, 196, 219 because < 50 spikes
-ptsTotal = {'EC131';'EC133';'EC143';'EC157';'EC162';'EC168';'EC186';'EC220';'EC221';'EC222'};
-%ptsTotal = {'EC222'};
+%ptsTotal = {'EC131';'EC133';'EC143';'EC157';'EC162';'EC168';'EC186';'EC220';'EC221';'EC222'};
+ptsTotal = {'EC133'};
 
 %%
 %Spt = patient name
@@ -41,14 +43,18 @@ ptsTotal = {'EC131';'EC133';'EC143';'EC157';'EC162';'EC168';'EC186';'EC220';'EC2
 patientsVetted = ptsTotal;
 
 %folderDataBase = '/Volumes/KLEEN_DRIVE/David/Bipolar project/output';
-folderFiguresCell = {fullfile(folderDataBase,'LL20'),fullfile(folderDataBase,'LL40'),fullfile(folderDataBase,'LL100'),fullfile(folderDataBase,'absDer')};
+%folderFiguresCell = {fullfile(folderDataBase,'LL20'),fullfile(folderDataBase,'LL40'),fullfile(folderDataBase,'LL100'),fullfile(folderDataBase,'absDer')};
+%cellAbsDeriv = {false,false,false,true};
+%cellLL = {true,true,true,false};
 
-cellAbsDeriv = {false,false,false,true};
-cellLL = {true,true,true,false};
+folderFiguresCell = {fullfile(folderDataBase, 'absDer')};
+cellAbsDeriv = {true};
+cellLL = {false};
 
 cellLLnum = {0.02,0.04,0.1,0};
 
-saveName = {'LL20','LL40','LL100','absDer'};
+saveName = {'absDer'};
+%saveName = {'absDer_v3'};
 
 for index = 1:length(folderFiguresCell)
 
@@ -807,92 +813,114 @@ for index = 1:length(folderFiguresCell)
                         exportgraphics(figure2x2,fullfile(folderFigures,[subjName '_2x2.eps']))
                     end
 
-                    % %% DEVON OUTPUT
-                    % 
-                    % figout = figure;
-                    % figure(figout)
-                    % tout = tiledlayout(2,3, 'TileSpacing', 'compact', 'Padding', 'compact');
-                    % figout.Position = [839 109 1408 1229];
-                    % 
-                    % keep = notNanIndsCombined;
-                    % %indices = keep(end-29:end);
-                    % indices = keep;
-                    % spike=107; %107, 275
-                    % bl=200;
-                    % 
-                    % figure(figout)
-                    % 
-                    % nexttile
-                    % mean_bl = referencedDataBaselineGoodOnly(:,indices, bl)';
-                    % eegplotbytime2021(mean_bl, 512, 500, [], 0, [0.5 0.5 0.5], 1);
-                    % title('Baseline - 4 mm BPRR')
-                    % set(gca, 'FontWeight', 'normal')
-                    % 
-                    % nexttile
-                    % mean_spike = referencedDataGoodOnly(:,indices,spike)';
-                    % eegplotbytime2021(mean_spike, 512, 500, [], 0, [0.5 0.5 0.5], 1);
-                    % ylabel('Channels')
-                    % title('IED - 4 mm BPRR')
-                    % set(gca, 'FontWeight', 'normal')
-                    % 
-                    % nexttile
-                    % 
-                    % imagesc([-0.51 0.51],[1,numPlotVec],meanSpikesReferencedGoodOnly(1:end-1,notNanIndsCombined)')
-                    % colormap(brewermap([],colormapChoice))
-                    % caxis(desiredPlotBoundsSubj)
-                    % hold on
-                    % for chanGoodInd = 1:length(notNanIndsCombined)
-                    %     goodChan = notNanIndsCombined(chanGoodInd);
-                    %     if ~isempty(permResultsCell{jj}.clusters{goodChan})
-                    %         if ((~isempty(permResultsCell{jj}.clusters{goodChan}{1})) & ( permResultsCell{jj}.adjpValuesTotal{goodChan}(1)<0.05))
-                    %             rectangle('position', [tPlot(min(permResultsCell{jj}.clusters{goodChan}{1})), chanGoodInd-0.5,tPlot(max(permResultsCell{jj}.clusters{goodChan}{1}))- tPlot(min(permResultsCell{jj}.clusters{goodChan}{1})), 1], 'edgecolor', 'k','linewidth',2)
-                    %         end
-                    %     end
-                    % end
-                    % xlabel('Time (s)')
-                    % ylabel('Channels')
-                    % title(['Pt. 5 High Density - Average IED, FDR'])
-                    % set(gca,'FontSize',10)
-                    % xticks([-0.50 -0.25 0 0.25 0.50])
-                    % 
-                    % %
-                    % 
-                    % figure(figout)
-                    % 
-                    % nexttile
-                    % mean_bl_sub = referencedDataBaselineSubSampleGoodOnly(1:512,indices, bl)';
-                    % eegplotbytime2021(mean_bl_sub, 512, 500, [], 0, [0.5 0.5 0.5], 1);
-                    % title('Baseline - 8 mm BPRR')
-                    % set(gca, 'FontWeight', 'normal')
-                    % set(gca, 'XTick', [10, 20, 30, 40, 50, 60])
-                    % 
-                    % 
-                    % nexttile
-                    % mean_spike_sub = referencedDataSubSampleGoodOnly(1:512,indices, spike)';
-                    % eegplotbytime2021(mean_spike_sub, 512, 500, [], 0, [0.5 0.5 0.5], 1);
-                    % title('IED - 8 mm BPRR')
-                    % set(gca, 'FontWeight', 'normal')
-                    % 
-                    % nexttile
-                    % imagesc([min(tPlot) max(tPlot)+0.012],[1,numPlotVec],meanSpikesReferencedGoodOnly(1:end-1,notNanIndsCombined)')
-                    % colormap(brewermap([],colormapChoice))
-                    % caxis(desiredPlotBoundsSubj)
-                    % hold on
-                    % for chanGoodIndSub = 1:length(notNanIndsCombined)
-                    %     goodChanSub = notNanIndsCombined(chanGoodIndSub);
-                    %     if ~isempty(permResultsCell{jj}.clustersSub{goodChanSub})
-                    %         if ((~isempty(permResultsCell{jj}.clustersSub{goodChanSub}{1})) & (permResultsCell{jj}.adjpValuesTotalSub{goodChanSub}(1)<0.05))
-                    %             rectangle('position', [tPlot(min(permResultsCell{jj}.clustersSub{goodChanSub}{1})), chanGoodIndSub-0.5,tPlot(max(permResultsCell{jj}.clustersSub{goodChanSub}{1}))-tPlot(min(permResultsCell{jj}.clustersSub{goodChanSub}{1})), 1], 'edgecolor', 'k','linewidth',2)
-                    %         end
-                    %     end
-                    % end
-                    % xlabel('Time (s)')
-                    % ylabel('Channels')
-                    % title(['Pt. 5 Subsampled - Average IED, FDR'])
-                    % set(gca,'FontSize',10)
-                    % xticks([-0.50 -0.25 0 0.25 0.50])
+                    %% DEVON OUTPUT
+
+                    figout = figure;
+                    figure(figout)
+                    tout = tiledlayout(2,3, 'TileSpacing', 'compact', 'Padding', 'compact');
+                    figout.Position = [839 109 1408 1229];
+
+                    keep = notNanIndsCombined;
+                    %indices = keep(end-29:end);
+                    indices = keep;
+                    spike=20; %107, 275
+                    bl=200;
+
+                    figure(figout)
+
+                    nexttile
+                    mean_bl = referencedDataBaselineGoodOnly(:,indices, bl)';
+                    eegplotbytime2021(mean_bl, 512, 500, -0.5, 0, [0.5 0.5 0.5], 1);
+                    title('Baseline - 4 mm BPRR')
+                    set(gca, 'FontWeight', 'normal')
+                    set(gca,'FontSize',14)
+                    xlabel('Time (s)')
+                   ylabel('Channels') 
+                   yticklabels({'60', '50', '40', '30', '20', '10'});
 
 
+                    nexttile
+                    mean_spike = referencedDataGoodOnly(:,indices,spike)';
+                    eegplotbytime2021(mean_spike, 512, 500, [], 0, [0.5 0.5 0.5], 1);
+                    title('IED - 4 mm BPRR')
+                    set(gca, 'FontWeight', 'normal')
+                    set(gca,'XTick',[], 'YTick', [])
+                    set(gca,'FontSize',14)
+                    s = gca;
+                    s.XTickLabel={};
+
+
+                    nexttile
+
+                    imagesc([-0.51 0.51],[1,numPlotVec],meanSpikesReferencedGoodOnly(1:end-1,notNanIndsCombined)')
+                    colormap(brewermap([],colormapChoice))
+                    caxis(desiredPlotBoundsSubj)
+                    hold on
+                    for chanGoodInd = 1:length(notNanIndsCombined)
+                        goodChan = notNanIndsCombined(chanGoodInd);
+                        if ~isempty(permResultsCell{jj}.clusters{goodChan})
+                            if ((~isempty(permResultsCell{jj}.clusters{goodChan}{1})) & ( permResultsCell{jj}.adjpValuesTotal{goodChan}(1)<0.05))
+                                rectangle('position', [tPlot(min(permResultsCell{jj}.clusters{goodChan}{1})), chanGoodInd-0.5,tPlot(max(permResultsCell{jj}.clusters{goodChan}{1}))- tPlot(min(permResultsCell{jj}.clusters{goodChan}{1})), 1], 'edgecolor', 'k','linewidth',2)
+                            end
+                        end
+                    end
+                    title(['Pt. 1 High Density - Average IED, FDR'])
+                    set(gca,'XTick',[], 'YTick', [])
+                    set(gca,'FontSize',14)
+                    c = colorbar;
+                    c.Label.String = 'Abs(diff) of signal ';
+
+
+                    %
+
+                    figure(figout)
+
+                    nexttile
+                    mean_bl_sub = referencedDataBaselineSubSampleGoodOnly(:,indices, bl)';
+                    eegplotbytime2021(mean_bl_sub, 512, 500, [], 0, [0.5 0.5 0.5], 1);
+                    title('Baseline - 8 mm BPRR')
+                    set(gca, 'FontWeight', 'normal')
+                    set(gca,'XTick',[], 'YTick', [])
+                    set(gca,'FontSize',14)
+                    s = gca;
+                    s.XTickLabel={};
+
+                    nexttile
+                    mean_spike_sub = referencedDataSubSampleGoodOnly(:,indices, spike)';
+                    eegplotbytime2021(mean_spike_sub, 512, 500, [], 0, [0.5 0.5 0.5], 1);
+                    title('IED - 8 mm BPRR')
+                    set(gca, 'FontWeight', 'normal')
+                    set(gca,'XTick',[], 'YTick', [])
+                    set(gca,'FontSize',14)
+                    s = gca;
+                    s.XTickLabel={};
+
+                    nexttile
+                    imagesc([min(tPlot) max(tPlot)+0.012],[1,numPlotVec],meanSpikesReferencedSubSampleGoodOnly(1:end-1,notNanIndsCombined)')
+                    colormap(brewermap([],colormapChoice))
+                    caxis(desiredPlotBoundsSubj)
+                    hold on
+                    for chanGoodIndSub = 1:length(notNanIndsCombined)
+                        goodChanSub = notNanIndsCombined(chanGoodIndSub);
+                        if ~isempty(permResultsCell{jj}.clustersSub{goodChanSub})
+                            if ((~isempty(permResultsCell{jj}.clustersSub{goodChanSub}{1})) & (permResultsCell{jj}.adjpValuesTotalSub{goodChanSub}(1)<0.05))
+                                rectangle('position', [tPlot(min(permResultsCell{jj}.clustersSub{goodChanSub}{1})), chanGoodIndSub-0.5,tPlot(max(permResultsCell{jj}.clustersSub{goodChanSub}{1}))-tPlot(min(permResultsCell{jj}.clustersSub{goodChanSub}{1})), 1], 'edgecolor', 'k','linewidth',2)
+                            end
+                        end
+                    end
+
+                    title(['Pt. 1 Subsampled - Average IED, FDR'])
+                    set(gca,'FontSize',14)
+
+                    set(gca,'XTick',[], 'YTick', [])
+                    set(gca,'FontSize',14)
+                    s = gca;
+                    s.XTickLabel={};
+
+                    if savePlots
+                        exportgraphics(figout,fullfile(folderFigures,[subjName '_spikes_heatmap.png']),'Resolution',600)
+                        exportgraphics(figout,fullfile(folderFigures,[subjName '_spikes_heatmap.eps']))
+                    end
 
                 end
 
@@ -901,7 +929,7 @@ for index = 1:length(folderFiguresCell)
 
         keep = notNanIndsCombined;
 
-    %    clearvars notNanInds notNanIndsCombined notNan notNanInds notNanSub notNanSubInds
+        %    clearvars notNanInds notNanIndsCombined notNan notNanInds notNanSub notNanSubInds
 
     end
 
@@ -989,40 +1017,40 @@ for index = 1:length(folderFiguresCell)
         exportgraphics(figureBaselineMeanReref,fullfile(folderFigures,'mean_baseline_rereference.eps'))
     end
 
-     save(fullfile(folderFigures,saveNameSpecific),'permResultsCell','referencedDataBaselineGoodOnly','referencedDataGoodOnly','referencedData','referencedDataBaseline','referencedDataSubSample','referencedDataBaselineSubSample','referencedDataBaselineSubSampleGoodOnly','patientsVetted','svmCell')
-   clearvars permResultsCell svmCell referencedDataBaselineGoodOnly referencedDataGoodOnly referencedData referencedDataBaseline referencedDataSubSample referencedDataBaselineSubSample referencedDataBaselineSubSampleGoodOnly
-   close all
-    
+    %    save(fullfile(folderFigures,saveNameSpecific),'permResultsCell','referencedDataBaselineGoodOnly','referencedDataGoodOnly','referencedData','referencedDataBaseline','referencedDataSubSample','referencedDataBaselineSubSample','referencedDataBaselineSubSampleGoodOnly','patientsVetted','svmCell')
+    %   clearvars permResultsCell svmCell referencedDataBaselineGoodOnly referencedDataGoodOnly referencedData referencedDataBaseline referencedDataSubSample referencedDataBaselineSubSample referencedDataBaselineSubSampleGoodOnly
+    %   close all
+    %}
 
 end
 
 % %% Devon Traces (Individual Traces)
-% 
+%
 % figavg = figure;
 % t = tiledlayout(2,2,'TileSpacing','compact','Padding','compact');
 % figavg.Position = [839 109 1408 1229];
 % indices = keep(end-29:end);
 % ind_red = keep(end-6:end);
 % indices=keep;
-% 
+%
 % nexttile
 % mean_spike = meanSpikesReferencedGoodOnly(1:512,indices)';
 % eegplotbytime2021(mean_spike, 512, 2700, [], 0, [0.3 0.3 0.3], 1);
-% 
+%
 % nexttile
 % mean_bl = meanSpikesReferencedBaselineGoodOnly(1:512,indices)';
 % eegplotbytime2021(mean_bl, 512, 2700, [], 0, [0.3 0.3 0.3], 1);
-% 
+%
 % nexttile
 % mean_spike_sub = meanSpikesReferencedSubSampleGoodOnly(1:512,indices)';
 % eegplotbytime2021(mean_spike_sub, 512, 2700, [], 0, [0.3 0.3 0.3], 1);
-% 
+%
 % nexttile
 % mean_bl_sub = meanSpikesReferencedBaselineSubSampleGoodOnly(1:512,indices)';
 % eegplotbytime2021(mean_bl_sub, 512, 2700, [], 0, [0.3 0.3 0.3], 1);
-% 
+%
 % %%
-% 
+%
 % fig_ind = figure;
 % t2 = tiledlayout(2,2,'TileSpacing','compact','Padding','compact');
 % fig_ind.Position = [839 109 1408 1229];
@@ -1030,30 +1058,30 @@ end
 % indices = keep;
 % spike=107; %107, 275
 % bl=200;
-% 
+%
 % nexttile
 % mean_spike = referencedDataGoodOnly(1:512,indices,spike)';
 % eegplotbytime2021(mean_spike, 512, 200, [], 0, [0.3 0.3 0.3], 1);
 % ylabel('Channels')
 % title('IED - 4 mm BPRR')
 % set(gca, 'FontWeight', 'normal')
-% 
+%
 % nexttile
 % mean_bl = referencedDataBaselineGoodOnly(1:512,indices, bl)';
 % eegplotbytime2021(mean_bl, 512, 200, [], 0, [0.3 0.3 0.3], 1);
 % title('Baseline - 4 mm BPRR')
 % set(gca, 'FontWeight', 'normal')
-% 
+%
 % nexttile
 % mean_spike_sub = referencedDataSubSampleGoodOnly(1:512,indices, spike)';
 % eegplotbytime2021(mean_spike_sub, 512, 200, [], 0, [0.3 0.3 0.3], 1);
 % title('IED - 8 mm BPRR')
 % set(gca, 'FontWeight', 'normal')
-% 
+%
 % nexttile
 % mean_bl_sub = referencedDataBaselineSubSampleGoodOnly(1:512,indices, bl)';
 % eegplotbytime2021(mean_bl_sub, 512, 200, [], 0, [0.3 0.3 0.3], 1);
 % title('Baseline - 8 mm BPRR')
 % set(gca, 'FontWeight', 'normal')
-% 
+%
 % %}
