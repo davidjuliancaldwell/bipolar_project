@@ -2,7 +2,7 @@
 %%
 savePlots = 1;
 
-folderDataBase = '/Users/davidcaldwell/Box/KLEENLAB/David/Results/June results fewer subj/';
+folderDataBase = '/Users/davidcaldwell/Box/KLEENLAB/David/Results/2025/';
 folderFiguresCell = {fullfile(folderDataBase,'LL20'),fullfile(folderDataBase,'LL40'),fullfile(folderDataBase,'LL100'),fullfile(folderDataBase,'absDer')};
 saveName = {'LL20','LL40','LL100','absDer'};
 statsStruct = struct;

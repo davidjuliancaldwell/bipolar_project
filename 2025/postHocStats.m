@@ -5,11 +5,12 @@
 
 savePostHocPlots = 1;
 run2x2plots = 1;
-saveSpikeStats = 1;
+saveSpikeStats = 0;
 savePlots = 0;
 
 folderDataBase = '/Users/davidcaldwell/Box/KLEENLAB/David/Results/2025';
 saveName = {'LL20','LL40','LL100','absDer'};
+saveName = {'absDer'};
 statsStruct = struct;
 
 numch_eachcond = [];
@@ -168,9 +169,9 @@ for jj = 1:length(saveName)
         set(gca,'FontSize',10)
         set(gca, 'YTick', [0 1 2 3 4 5])
         set(gca, 'XGrid', 'off')
-        %set(gca, 'XTick', [1 2], 'XTickLabel', {'', 'High Density', 'Sub-sampled', ''});
+        set(gca, 'XTick', [1 2], 'XTickLabel', {'', 'High Density', 'Sub-sampled', ''});
         hold on;
-        %ax.XTickLabel ={'','High density','','Sub-sampled',''};
+        ax.XTickLabel ={'','High density','','Sub-sampled',''};
         ax.GridAlpha = 0.4;
         ax.GridColor = [0 0 0];
         
@@ -241,9 +242,9 @@ for jj = 1:length(saveName)
     title([' Spike Channels'])
     set(gca, 'YTick', [0 1 2 3 4 5])
     set(gca, 'XGrid', 'off')
-    %set(gca, 'XTick', [1 2], 'XTickLabel', {'', 'High Density', 'Sub-sampled', ''});
+    set(gca, 'XTick', [1 2], 'XTickLabel', {'', 'High Density', 'Sub-sampled', ''});
     hold on;
-    %ax.XTickLabel ={'','High density','','Sub-sampled',''};
+    ax.XTickLabel ={'High density','Sub-sampled','',''};
     ax.GridAlpha = 0.4;
     ax.GridColor = [0 0 0];
     set(gca,'FontSize',18)

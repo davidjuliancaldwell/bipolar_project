@@ -279,9 +279,9 @@ maxAbs = max(abs(maxZ),abs(minZ));
 figure
 subplot(3,1,1)
 pcolorjk_djc(binz(2:size(mz_zNoST,3)+1),frx,squeeze(nanmean(mz_zNoST,2))); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',14);
-%text(max(xlim)+diff(xlim)/10,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+%text(max(xlim)+diff(xlim)/10,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 cbar = colorbar();
-cbar.Label.String = 'ln(z-score power)';
+cbar.Label.String = ''z-score (ln power)';
 title('No Stimulus/Speech (z-scored by frequency)','fontweight','normal')
 set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 caxis([-maxAbs,maxAbs])
@@ -289,9 +289,9 @@ cmocean('balance')
 
 subplot(3,1,2)
 pcolorjk_djc(binz(2:size(mz_zSpeech,3)+1),frx,squeeze(nanmean(mz_zSpeech,2))); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',14);
-%text(max(xlim)+diff(xlim)/10,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+%text(max(xlim)+diff(xlim)/10,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 cbar = colorbar();
-cbar.Label.String = 'ln(z-score power)';
+cbar.Label.String = ''z-score (ln power)';
 title('Speech (z-scored by frequency)','fontweight','normal')
 set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 % hold on
@@ -303,9 +303,9 @@ cmocean('balance')
 
 subplot(3,1,3)
 pcolorjk_djc(binz(2:size(mz_zStim,3)+1),frx,squeeze(nanmean(mz_zStim,2))); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',14);
-%text(max(xlim)+diff(xlim)/10,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+%text(max(xlim)+diff(xlim)/10,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 cbar = colorbar();
-cbar.Label.String = 'ln(z-score power)';
+cbar.Label.String = ''z-score (ln power)';
 title('Stimulus (z-scored by frequency)','fontweight','normal')
 set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 % hold on
@@ -353,8 +353,8 @@ figure
 subplot(2,2,1)
 pcolorjk_djc(binz(2:size(mz_zNoST,3)+1),frx,avgSpeechBase); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',14);
 cbar = colorbar();
-cbar.Label.String = 'ln(z-score power)';
-%text(max(xlim)+diff(xlim)/6,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+cbar.Label.String = ''z-score (ln power)';
+%text(max(xlim)+diff(xlim)/6,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 title('Speech - Baseline (z-scored by frequency)','fontweight','normal')
 set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 caxis([-maxZsubAbs,maxZsubAbs])
@@ -362,9 +362,9 @@ cmocean('balance')
 
 subplot(2,2,2)
 pcolorjk_djc(binz(2:size(mz_zNoST,3)+1),frx,avgSpeechBaseClust); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',14);
-%text(max(xlim)+diff(xlim)/6,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+%text(max(xlim)+diff(xlim)/6,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 cbar = colorbar();
-cbar.Label.String = 'ln(z-score power)';
+cbar.Label.String = ''z-score (ln power)';
 title('Speech - Baseline (z-scored by frequency) Significant differences','fontweight','normal')
 set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 caxis([-maxZsubAbs,maxZsubAbs])
@@ -372,9 +372,9 @@ cmocean('balance')
 
 subplot(2,2,3)
 pcolorjk_djc(binz(2:size(mz_zSpeech,3)+1),frx,avgStimBase); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',14);
-%text(max(xlim)+diff(xlim)/6,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+%text(max(xlim)+diff(xlim)/6,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 cbar = colorbar();
-cbar.Label.String = 'ln(z-score power)';
+cbar.Label.String = ''z-score (ln power)';
 title('Stimulus - Baseline (z-scored by frequency)','fontweight','normal')
 set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 % hold on
@@ -386,9 +386,9 @@ cmocean('balance')
 
 subplot(2,2,4)
 pcolorjk_djc(binz(2:size(mz_zNoST,3)+1),frx,avgStimBaseClust); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',14);
-%text(max(xlim)+diff(xlim)/6,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+%text(max(xlim)+diff(xlim)/6,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 cbar = colorbar();
-cbar.Label.String = 'ln(z-score power)';
+cbar.Label.String = ''z-score (ln power)';
 title('Stim - Baseline (z-scored by frequency) Significant differences','fontweight','normal')
 set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 caxis([-maxZsubAbs,maxZsubAbs])
@@ -396,7 +396,7 @@ cmocean('balance')
 
 % subplot(3,2,5)
 % pcolorjk_djc(binz(2:size(mz_zStim,3)+1),frx,avgSpeechStim); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',14); colorbar;
-% text(max(xlim)+diff(xlim)/4,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+% text(max(xlim)+diff(xlim)/4,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 % title('Speech - Stimulus (z-scored by frequency)','fontweight','normal')
 % set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 % % hold on
@@ -407,7 +407,7 @@ cmocean('balance')
 %
 % subplot(3,2,6)
 % pcolorjk_djc(binz(2:size(mz_zNoST,3)+1),frx,avgSpeechStimClust); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',14); colorbar;
-% text(max(xlim)+diff(xlim)/4,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+% text(max(xlim)+diff(xlim)/4,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 % title('Speech - Stimulus (z-scored by frequency) Significant Differences','fontweight','normal')
 % set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 % caxis([minZsub,maxZsub])
@@ -430,8 +430,8 @@ figure
 subplot(3,1,1)
 pcolorjk_djc(binz(2:size(mz_zNoSTSTG,3)+1),frx,squeeze(nanmean(mz_zNoSTSTG,2))); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',14);
 cbar = colorbar();
-cbar.Label.String = 'ln(z-score power)';
-%text(max(xlim)+diff(xlim)/10,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+cbar.Label.String = ''z-score (ln power)';
+%text(max(xlim)+diff(xlim)/10,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 title('STG - No Stimulus/Speech (z-scored by frequency)','fontweight','normal')
 set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 caxis([-maxSTGAbs,maxSTGAbs])
@@ -440,8 +440,8 @@ cmocean('balance')
 subplot(3,1,2)
 pcolorjk_djc(binz(2:size(mz_zSpeechSTG,3)+1),frx,squeeze(nanmean(mz_zSpeechSTG,2))); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',14);
 cbar = colorbar();
-cbar.Label.String = 'ln(z-score power)';
-%text(max(xlim)+diff(xlim)/10,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+cbar.Label.String = ''z-score (ln power)';
+%text(max(xlim)+diff(xlim)/10,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 title('STG - Speech (z-scored by frequency)','fontweight','normal')
 set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 % hold on
@@ -454,9 +454,9 @@ cmocean('balance')
 subplot(3,1,3)
 pcolorjk_djc(binz(2:size(mz_zStimSTG,3)+1),frx,squeeze(nanmean(mz_zStimSTG,2))); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',14);
 cbar = colorbar();
-cbar.Label.String = 'ln(z-score power)';
-%text(max(xlim)+diff(xlim)/6,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
-%text(max(xlim)+diff(xlim)/10,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+cbar.Label.String = 'z-score (ln power)';
+%text(max(xlim)+diff(xlim)/6,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+%text(max(xlim)+diff(xlim)/10,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 title('STG  - Stimulus (z-scored by frequency)','fontweight','normal')
 set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 % hold on
@@ -503,7 +503,7 @@ tiledlayout(2,2,'TileSpacing','Compact','Padding','Compact');
 nexttile
 pcolorjk_djc(binz(2:size(mz_zNoSTSTG,3)+1),frx,avgSpeechBaseSTG); shading flat; set(gca,'ydir','normal'); set(gca,'fontsize',14);
 cbar = colorbar();
-%text(max(xlim)+diff(xlim)/6,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+%text(max(xlim)+diff(xlim)/6,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 title('STG Speech - Baseline (z-scored by frequency) ','fontweight','normal')
 set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 caxis([-maxSTGAbs,maxSTGAbs])
@@ -512,7 +512,7 @@ cmocean('balance')
 nexttile
 pcolorjk_djc(binz(2:size(mz_zNoSTSTG,3)+1),frx,avgSpeechBaseClustSTG); shading flat; set(gca,'ydir','normal'); set(gca,'fontsize',14);
 cbar = colorbar();
-%text(max(xlim)+diff(xlim)/6,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+%text(max(xlim)+diff(xlim)/6,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 title('STG Speech - Baseline (z-scored by frequency) Significant differences','fontweight','normal')
 set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 caxis([-maxSTGAbs,maxSTGAbs])
@@ -520,7 +520,7 @@ cmocean('balance')
 
 nexttile
 pcolorjk_djc(binz(2:size(mz_zSpeechSTG,3)+1),frx,avgStimBaseSTG); shading flat; set(gca,'ydir','normal');  set(gca,'fontsize',14);
-%text(max(xlim)+diff(xlim)/6,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+%text(max(xlim)+diff(xlim)/6,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 cbar = colorbar();
 title('STG Stimulus - Baseline (z-scored by frequency)','fontweight','normal')
 set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
@@ -533,9 +533,9 @@ cmocean('balance')
 
 nexttile
 pcolorjk_djc(binz(2:size(mz_zNoSTSTG,3)+1),frx,avgStimBaseClustSTG); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',14);
-%text(max(xlim)+diff(xlim)/4,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+%text(max(xlim)+diff(xlim)/4,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 cbar = colorbar();
-cbar.Label.String = 'ln(z-score power)';
+cbar.Label.String = 'z-score (ln power)';
 title('STG Stim - Baseline (z-scored by frequency) Significant differences','fontweight','normal')
 set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 caxis([-maxSTGAbs,maxSTGAbs])
@@ -543,7 +543,7 @@ cmocean('balance')
 
 % subplot(3,2,5)
 % pcolorjk_djc(binz(2:size(mz_zStimSTG,3)+1),frx,avgSpeechStimSTG); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',14); colorbar;
-% text(max(xlim)+diff(xlim)/4,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+% text(max(xlim)+diff(xlim)/4,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 % title('STG Speech - Stimulus (z-scored by frequency)','fontweight','normal')
 % set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 % % hold on
@@ -554,7 +554,7 @@ cmocean('balance')
 %
 % subplot(3,2,6)
 % pcolorjk_djc(binz(2:size(mz_zStimSTG,3)+1),frx,avgSpeechStimClustSTG); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',14); colorbar;
-% text(max(xlim)+diff(xlim)/4,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+% text(max(xlim)+diff(xlim)/4,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 % title('STG Speech - Stimulus (z-scored by frequency) Significant Differences','fontweight','normal')
 % set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 % caxis([minZsubSTG,maxZsubSTG])
@@ -577,8 +577,8 @@ figure
 subplot(3,1,1)
 pcolorjk_djc(binz(2:size(mz_zNoSTIFG,3)+1),frx,squeeze(nanmean(mz_zNoSTIFG,2))); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',14); colorbar;
 cbar = colorbar();
-cbar.Label.String = 'ln(z-score power)';
-%text(max(xlim)+diff(xlim)/4,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+cbar.Label.String = ''z-score (ln power)';
+%text(max(xlim)+diff(xlim)/4,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 title('IFG - No Stimulus/Speech (z-scored by frequency)','fontweight','normal')
 set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 caxis([-maxIFGabs,maxIFGabs])
@@ -587,8 +587,8 @@ cmocean('balance')
 subplot(3,1,2)
 pcolorjk_djc(binz(2:size(mz_zSpeechIFG,3)+1),frx,squeeze(nanmean(mz_zSpeechIFG,2))); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',14); colorbar;
 cbar = colorbar();
-cbar.Label.String = 'ln(z-score power)';
-%text(max(xlim)+diff(xlim)/4,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+cbar.Label.String = ''z-score (ln power)';
+%text(max(xlim)+diff(xlim)/4,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 title('IFG - Speech (z-scored by frequency) with significant clusters','fontweight','normal')
 set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 % hold on
@@ -601,8 +601,8 @@ cmocean('balance')
 subplot(3,1,3)
 pcolorjk_djc(binz(2:size(mz_zStimIFG,3)+1),frx,squeeze(nanmean(mz_zStimIFG,2))); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',14); colorbar;
 cbar = colorbar();
-cbar.Label.String = 'ln(z-score power)';
-%text(max(xlim)+diff(xlim)/4,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+cbar.Label.String = ''z-score (ln power)';
+%text(max(xlim)+diff(xlim)/4,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 title('IFG - Stimulus (z-scored by frequency) with significant clusters','fontweight','normal')
 set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 % hold on
@@ -649,7 +649,7 @@ tiledlayout(2,2,'TileSpacing','Compact','Padding','Compact');
 nexttile
 pcolorjk_djc(binz(2:size(mz_zNoSTIFG,3)+1),frx,avgSpeechBaseIFG); shading flat; set(gca,'ydir','normal'); set(gca,'fontsize',14);
 cbar = colorbar;
-%text(max(xlim)+diff(xlim)/4,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+%text(max(xlim)+diff(xlim)/4,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 title('IFG Speech - Baseline (z-scored by frequency) ','fontweight','normal')
 set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 caxis([-maxIFGabs,maxIFGabs])
@@ -658,7 +658,7 @@ cmocean('balance')
 nexttile
 pcolorjk_djc(binz(2:size(mz_zNoSTIFG,3)+1),frx,avgSpeechBaseClustIFG); shading flat; set(gca,'ydir','normal');set(gca,'fontsize',14);
 cbar = colorbar;
-%text(max(xlim)+diff(xlim)/4,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+%text(max(xlim)+diff(xlim)/4,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 title('IFG Speech - Baseline (z-scored by frequency) Significant differences','fontweight','normal')
 set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 caxis([-maxIFGabs,maxIFGabs])
@@ -667,7 +667,7 @@ cmocean('balance')
 nexttile
 pcolorjk_djc(binz(2:size(mz_zSpeechIFG,3)+1),frx,avgStimBaseIFG); shading flat; set(gca,'ydir','normal'); set(gca,'fontsize',14);
 cbar = colorbar;
-%text(max(xlim)+diff(xlim)/4,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+%text(max(xlim)+diff(xlim)/4,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 title('IFG Stimulus - Baseline (z-scored by frequency)','fontweight','normal')
 set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 % hold on
@@ -680,8 +680,8 @@ cmocean('balance')
 nexttile
 pcolorjk_djc(binz(2:size(mz_zNoSTIFG,3)+1),frx,avgStimBaseClustIFG); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',14);
 cbar = colorbar;
-cbar.Label.String = 'ln(z-score power)';
-%text(max(xlim)+diff(xlim)/4,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+cbar.Label.String = 'z-score (ln power)';
+%text(max(xlim)+diff(xlim)/4,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 title('Stim - Baseline (z-scored by frequency) Significant differences','fontweight','normal')
 set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 caxis([-maxIFGabs,maxIFGabs])
@@ -690,8 +690,8 @@ cmocean('balance')
 % subplot(3,2,5)
 % pcolorjk_djc(binz(2:size(mz_zStimIFG,3)+1),frx,avgSpeechStimIFG); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',14);
 % cbar = colorbar;
-% cbar.Label.String = 'ln(z-score power)');
-% %text(max(xlim)+diff(xlim)/4,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+% cbar.Label.String = ''z-score (ln power)');
+% %text(max(xlim)+diff(xlim)/4,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 % title('Speech - Stimulus (z-scored by frequency)','fontweight','normal')
 % set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 % % hold on
@@ -702,7 +702,7 @@ cmocean('balance')
 %
 % subplot(3,2,6)
 % pcolorjk_djc(binz(2:size(mz_zStimIFG,3)+1),frx,avgSpeechStimClustIFG); shading flat; set(gca,'ydir','normal'); ylabel('Frequency (Hz)'); xlabel('Distance (mm)'); set(gca,'fontsize',14); colorbar;
-% text(max(xlim)+diff(xlim)/4,mean(ylim),'ln(z-score power)','fontsize',12,'rotation',90,'horizontalalignment','center')
+% text(max(xlim)+diff(xlim)/4,mean(ylim),''z-score (ln power)','fontsize',12,'rotation',90,'horizontalalignment','center')
 % title('Speech - Stimulus (z-scored by frequency) Significant Differences','fontweight','normal')
 % set(gca,'yscale','log','ytick',ft,'yticklabel',ftl);
 % caxis([minZsubIFG,maxZsubIFG])
@@ -768,7 +768,7 @@ title('STG Gamma Power Stimulus vs. Baseline')
 xlim(xlimsTotal)
 
 xlabel('Distance (mm)')
-ylabel('Averaged power (ln z-score)')
+ylabel('Averaged power (z-score (ln))')
 set(gca,'fontsize',14);
 tempFig = gcf;
 tempFig.Position = [839 210 581 1128];

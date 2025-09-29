@@ -834,24 +834,32 @@ for index = 1:length(folderFiguresCell)
                     title('Baseline - 4 mm BPRR')
                     set(gca, 'FontWeight', 'normal')
                     set(gca,'FontSize',14)
-                    xlabel('Time (s)')
-                   ylabel('Channels') 
-                   yticklabels({'60', '50', '40', '30', '20', '10'});
+                    xlabel('Time (seconds)')
+                    ylabel('Channel number')
+                    yticklabels({'60', '50', '40', '30', '20', '10'});
 
+                    % custom coded given 500 for amp factor in
+                    % eegplotbytime2021
+                    pixPerUm = 0.05;
+                    scalebarLength = 100; %
+                    labelScaleBar = ['abs(diff) of ' char(181) 'V signal']; % micrometer
+                    margin_units = [30,90];
+                    text_spacing = [0.025];
+                    line_width = 3;
+                    hScalebar = scalebar('y',scalebarLength,labelScaleBar,'ConversionFactor', pixPerUm, 'Location', 'southeast','Margin',margin_units,'TextSpacing',text_spacing,'LineWidth',line_width);
 
                     nexttile
                     mean_spike = referencedDataGoodOnly(:,indices,spike)';
-                    eegplotbytime2021(mean_spike, 512, 500, [], 0, [0.5 0.5 0.5], 1);
+                    eegplotbytime2021(mean_spike, 512, 500, -0.5, 0, [0.5 0.5 0.5], 1);
                     title('IED - 4 mm BPRR')
                     set(gca, 'FontWeight', 'normal')
-                    set(gca,'XTick',[], 'YTick', [])
                     set(gca,'FontSize',14)
-                    s = gca;
-                    s.XTickLabel={};
-
+                    xlabel('Time (seconds)')
+                    ylabel('Channel number')
+                    yticklabels({'60', '50', '40', '30', '20', '10'});
+                    hScalebar = scalebar('y',scalebarLength,labelScaleBar,'ConversionFactor', pixPerUm, 'Location', 'southeast','Margin',margin_units,'TextSpacing',text_spacing,'LineWidth',line_width);
 
                     nexttile
-
                     imagesc([-0.51 0.51],[1,numPlotVec],meanSpikesReferencedGoodOnly(1:end-1,notNanIndsCombined)')
                     colormap(brewermap([],colormapChoice))
                     caxis(desiredPlotBoundsSubj)
@@ -865,35 +873,40 @@ for index = 1:length(folderFiguresCell)
                         end
                     end
                     title(['Pt. 1 High Density - Average IED, FDR'])
-                    set(gca,'XTick',[], 'YTick', [])
                     set(gca,'FontSize',14)
                     c = colorbar;
-                    c.Label.String = 'Abs(diff) of signal ';
-
-
+                    c.Label.String = ['Abs(diff) of ' char(181) 'V signal '];
+                    xlabel('Time (seconds)')
+                    ylabel('Channel number')
+                    yticklabels({'60', '50', '40', '30', '20', '10'});
                     %
 
                     figure(figout)
 
                     nexttile
                     mean_bl_sub = referencedDataBaselineSubSampleGoodOnly(:,indices, bl)';
-                    eegplotbytime2021(mean_bl_sub, 512, 500, [], 0, [0.5 0.5 0.5], 1);
+                    eegplotbytime2021(mean_bl_sub, 512, 500, -0.5, 0, [0.5 0.5 0.5], 1);
                     title('Baseline - 8 mm BPRR')
                     set(gca, 'FontWeight', 'normal')
-                    set(gca,'XTick',[], 'YTick', [])
                     set(gca,'FontSize',14)
                     s = gca;
-                    s.XTickLabel={};
+                    xlabel('Time (seconds)')
+                    ylabel('Channel number')
+                    yticklabels({'60', '50', '40', '30', '20', '10'});
+                    hScalebar = scalebar('y',scalebarLength,labelScaleBar,'ConversionFactor', pixPerUm, 'Location', 'southeast','Margin',margin_units,'TextSpacing',text_spacing,'LineWidth',line_width);
+
 
                     nexttile
                     mean_spike_sub = referencedDataSubSampleGoodOnly(:,indices, spike)';
-                    eegplotbytime2021(mean_spike_sub, 512, 500, [], 0, [0.5 0.5 0.5], 1);
+                    eegplotbytime2021(mean_spike_sub, 512, 500,-0.5, 0, [0.5 0.5 0.5], 1);
                     title('IED - 8 mm BPRR')
                     set(gca, 'FontWeight', 'normal')
-                    set(gca,'XTick',[], 'YTick', [])
                     set(gca,'FontSize',14)
-                    s = gca;
-                    s.XTickLabel={};
+                    xlabel('Time (seconds)')
+                    ylabel('Channel number')
+                    yticklabels({'60', '50', '40', '30', '20', '10'});
+                    hScalebar = scalebar('y',scalebarLength,labelScaleBar,'ConversionFactor', pixPerUm, 'Location', 'southeast','Margin',margin_units,'TextSpacing',text_spacing,'LineWidth',line_width);
+
 
                     nexttile
                     imagesc([min(tPlot) max(tPlot)+0.012],[1,numPlotVec],meanSpikesReferencedSubSampleGoodOnly(1:end-1,notNanIndsCombined)')
@@ -911,11 +924,11 @@ for index = 1:length(folderFiguresCell)
 
                     title(['Pt. 1 Subsampled - Average IED, FDR'])
                     set(gca,'FontSize',14)
+                    xlabel('Time (seconds)')
+                    ylabel('Channel number')
+                    yticklabels({'60', '50', '40', '30', '20', '10'});
 
-                    set(gca,'XTick',[], 'YTick', [])
-                    set(gca,'FontSize',14)
                     s = gca;
-                    s.XTickLabel={};
 
                     if savePlots
                         exportgraphics(figout,fullfile(folderFigures,[subjName '_spikes_heatmap.png']),'Resolution',600)
