@@ -878,7 +878,7 @@ for index = 1:length(folderFiguresCell)
                     c.Label.String = ['Abs(diff) of ' char(181) 'V signal '];
                     xlabel('Time (seconds)')
                     ylabel('Channel number')
-                    yticklabels({'60', '50', '40', '30', '20', '10'});
+                   % yticklabels({'60', '50', '40', '30', '20', '10'});
                     %
 
                     figure(figout)
@@ -926,7 +926,7 @@ for index = 1:length(folderFiguresCell)
                     set(gca,'FontSize',14)
                     xlabel('Time (seconds)')
                     ylabel('Channel number')
-                    yticklabels({'60', '50', '40', '30', '20', '10'});
+                   % yticklabels({'60', '50', '40', '30', '20', '10'});
 
                     s = gca;
 
